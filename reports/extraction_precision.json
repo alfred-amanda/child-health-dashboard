@@ -1,0 +1,21 @@
+{
+  "expected": 8,
+  "true_positive": 8,
+  "false_positive": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "invented_fact_failures": [],
+  "low_confidence_to_review": [
+    {
+      "id": "golden-hepb-deferred",
+      "source_id": "SRC-015",
+      "fact_type": "needs_confirmation",
+      "field": "vaccines.hepatitis_b",
+      "value": "Hep B deferred",
+      "snippet": "Hep B, ped",
+      "page": 2,
+      "confidence": 0.99,
+      "status": "needs_confirmation"
+    }
+  ]
+}

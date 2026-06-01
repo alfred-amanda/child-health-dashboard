@@ -1,0 +1,78 @@
+{
+  "name": "Thomas extraction golden subset",
+  "required_precision": 0.95,
+  "facts": [
+    {
+      "id": "golden-redflag-wet-diapers",
+      "source_id": "SRC-003",
+      "fact_type": "record_fact",
+      "field": "red_flags.wet_diapers_24h",
+      "value": "Less than 4 wet diapers in 24 hours",
+      "snippet": "Less than 4 wet diapers in 24 hours",
+      "page": 2
+    },
+    {
+      "id": "golden-redflag-fever-39",
+      "source_id": "SRC-003",
+      "fact_type": "record_fact",
+      "field": "red_flags.fever_reaching_c",
+      "value": "39 C",
+      "snippet": "fevers reaching 39c again",
+      "page": 2
+    },
+    {
+      "id": "golden-redflag-seizure-911",
+      "source_id": "SRC-003",
+      "fact_type": "record_fact",
+      "field": "red_flags.seizure",
+      "value": "call 911",
+      "snippet": "please call 911 as this is concerning for a seizure",
+      "page": 2
+    },
+    {
+      "id": "golden-dat-positive",
+      "source_id": "SRC-001",
+      "fact_type": "record_fact",
+      "field": "blood_type.direct_antiglobulin_test",
+      "value": "POS",
+      "snippet": "Antiglob-Cord\nPOS",
+      "page": 5
+    },
+    {
+      "id": "golden-bilirubin-5-8",
+      "source_id": "SRC-018",
+      "fact_type": "record_fact",
+      "field": "labs.bilirubin_total",
+      "value": "5.8 mg/dL",
+      "snippet": "5.8 mg/dL",
+      "page": 1
+    },
+    {
+      "id": "golden-parechovirus",
+      "source_id": "SRC-010",
+      "fact_type": "record_fact",
+      "field": "infection.parechovirus",
+      "value": "Parechovirus detected in CSF",
+      "snippet": "Parechovirus detected in CSF",
+      "page": 1
+    },
+    {
+      "id": "golden-culture-confirm",
+      "source_id": "SRC-008",
+      "fact_type": "record_fact",
+      "field": "cultures.status",
+      "value": "Cultures remain no growth",
+      "snippet": "Cultures remain no growth",
+      "page": 1
+    },
+    {
+      "id": "golden-hepb-deferred",
+      "source_id": "SRC-015",
+      "fact_type": "needs_confirmation",
+      "field": "vaccines.hepatitis_b",
+      "value": "Hep B deferred",
+      "snippet": "Hep B, ped",
+      "page": 2
+    }
+  ]
+}

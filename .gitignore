@@ -1,0 +1,13 @@
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+*.tsbuildinfo
+data/child_health.db
+data/storage/
+.env
+coverage/
+reports/smoke/*.log
