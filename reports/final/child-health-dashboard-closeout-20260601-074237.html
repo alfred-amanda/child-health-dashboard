@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Child Health Dashboard — Final Build Closeout</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#59657a; --ok:#0a7f43; --warn:#9a5b00; --alarm:#b42318; --line:#d8dee9; --bg:#f7fbff; --card:#ffffff; --blue:#285f8f; }
+    body { margin:0; font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink); background:linear-gradient(180deg,#f4fbff,#fff7f1); }
+    main { max-width:1120px; margin:0 auto; padding:32px 20px 56px; }
+    h1 { font-size:34px; margin:0 0 8px; }
+    h2 { margin-top:32px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+    h3 { margin:22px 0 6px; }
+    .sub { color:var(--muted); margin-bottom:20px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:0 2px 8px rgba(35,50,80,.06); }
+    .status { display:inline-block; border-radius:999px; padding:3px 10px; font-weight:700; font-size:13px; }
+    .ok { background:#e8f7ef; color:var(--ok); }
+    .warn { background:#fff4dd; color:var(--warn); }
+    .alarm { background:#ffe8e5; color:var(--alarm); }
+    code, pre { background:#f2f5f9; border:1px solid #e0e6ef; border-radius:8px; }
+    code { padding:1px 5px; }
+    pre { padding:12px; overflow:auto; white-space:pre-wrap; }
+    table { width:100%; border-collapse:collapse; background:white; border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+    th { background:#edf5ff; }
+    tr:last-child td { border-bottom:none; }
+    .critical { border-left:6px solid var(--alarm); }
+    .note { border-left:6px solid var(--blue); }
+    ul { padding-left:22px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Child Health Dashboard — Final Build Closeout</h1>
+  <div class="sub">Generated 2026-06-01 07:42:37 PDT. Local repo: <code>/Users/johnchen/Documents/child-health-dashboard</code>. Commit: <code>9d2ea02</code>.</div>
+
+  <section class="grid">
+    <div class="card"><strong>Overall status</strong><br><span class="status ok">Implemented + verified</span><p>All in-scope E0–E6 and NFR issues built. Independent Opus review remains pending by design.</p></div>
+    <div class="card"><strong>Percent complete</strong><br><span class="status ok">97.6%</span><p>41/42 execution/review-gate issues are complete. ALF-214 remains open as the blocking Opus 4.8 review gate.</p></div>
+    <div class="card"><strong>PHI posture</strong><br><span class="status ok">Local-first default</span><p>Default config disables external services; NFR test proves PHI-marked outbound calls are blocked.</p></div>
+    <div class="card"><strong>Clinical safety posture</strong><br><span class="status warn">Review required before reliance</span><p>The app organizes evidence and under-claims; it is not a substitute for pediatrician/ER judgment.</p></div>
+  </section>
+
+  <h2>Scope delivered</h2>
+  <ul>
+    <li>FastAPI + SQLite API, Vite/React dashboard, local seed/import workflow, and reproducible make targets.</li>
+    <li>Thomas seed import from <code>~/Documents/Health/Thomas Medical Profile/</code> with source manifest, provenance, confidence, and review status.</li>
+    <li>Dual visual language: calm watercolor routine UI and visibly distinct alarm state for red-flag scenarios.</li>
+    <li>Source-driven red-flag rules from discharge/AVS text, not hardcoded thresholds without citation.</li>
+    <li>2022 AAP bilirubin chart with hour-of-life thresholds and hemolytic/DAT-positive risk curve.</li>
+    <li>Core pages: Today, timeline, conditions, doctor prep, doctor questions, charts, growth/feeding, development, vaccines, tasks, predictions, review queue, parent/clinician framing.</li>
+    <li>Reports generated: extraction precision, doctor-prep one-pager, calm/alarm HTML snapshots, a11y/colorblind review, 3am ergonomics note.</li>
+  </ul>
+
+  <h2>Load-bearing safety-critical acceptance criteria</h2>
+  <table>
+    <thead><tr><th>Risk area</th><th>Implemented evidence</th><th>Verification</th></tr></thead>
+    <tbody>
+      <tr class="critical"><td><strong>E4.2 Bilirubin chart</strong></td><td><code>apps/api/app/bilirubin.py</code> uses local AAP-2022 threshold table, interpolates by hour of life, chooses risk-factor curve when DAT-positive/hemolysis applies, and emits cautious interpretation text.</td><td><code>apps/api/tests/test_bilirubin_nomogram.py</code>; API smoke showed 11 unique curve thresholds, risk factor “DAT-positive / isoimmune hemolytic disease,” no flat line.</td></tr>
+      <tr class="critical"><td><strong>E3.3 Red flags</strong></td><td><code>apps/api/app/red_flags.py</code> extracts/cites red-flag language from Thomas discharge/AVS sources including <code>SRC-003</code> and <code>SRC-015</code>.</td><td><code>apps/api/tests/test_red_flags.py</code>; API smoke returned 9 rules with source/snippet evidence.</td></tr>
+      <tr class="critical"><td><strong>NFR1 No PHI egress</strong></td><td><code>apps/api/app/config.py</code> defaults external services off; guarded outbound helper rejects PHI payloads unless explicit opt-in.</td><td><code>apps/api/tests/test_nfr_phi_and_predictions.py</code>; <code>/api/health</code> reports <code>external_services_enabled: false</code>, <code>phi_local_first: true</code>.</td></tr>
+      <tr class="critical"><td><strong>E1.5 No invented extraction facts</strong></td><td>Extraction candidates require source id, page, snippet, confidence, and review status. Low-confidence/needs-confirmation entries route to review.</td><td><code>reports/extraction_precision.json</code>: precision 1.0, recall 1.0, false positives 0, invented fact failures [].</td></tr>
+      <tr class="critical"><td><strong>E6.3 Predictions</strong></td><td>Predictions are bounded to task/question suggestions and include “not reassurance” semantics.</td><td><code>apps/api/tests/test_nfr_phi_and_predictions.py</code>; API smoke returned action-needed predictions only.</td></tr>
+      <tr class="critical"><td><strong>E3.1/E0.2 Alarm + accessibility</strong></td><td>Today page switches to alarm visual language; tokens encode hue + shape + icon + text and tap targets.</td><td>Vitest component tests; <code>npm run test:a11y</code> passed; reports under <code>reports/accessibility/</code> and <code>reports/screenshots/</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Verification results</h2>
+  <pre>make check — PASS
+- app.seed: sources=35, conditions=6, weights=6, labs=4, tasks=4, questions=10
+- ruff: All checks passed
+- mypy: Success, 21 source files
+- eslint: zero warnings/errors
+- TypeScript: tsc --noEmit clean
+- vitest: 8 tests passed
+- a11y/token check: WCAG AA/token checks passed
+
+make ci — PASS
+- pytest apps/api/tests: 18 passed
+- Vite production build: built successfully
+
+make smoke-dev — PASS
+- FastAPI 8008 and Vite 5173 reachable
+
+API smoke — PASS
+- /api/health: ok=true, external_services_enabled=false, phi_local_first=true
+- /api/red-flags: 9 source-cited rules
+- /api/charts/bilirubin: non-flat hour-of-life threshold curve, DAT-positive risk factor applied
+- /api/today?alarm=true: alarm status with SRC-003 urgent recommendation
+- /api/predictions: bounded action-needed tasks/questions only</pre>
+
+  <h2>Extraction precision receipt</h2>
+  <pre>{
+  "expected": 8,
+  "true_positive": 8,
+  "false_positive": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "invented_fact_failures": [],
+  "low_confidence_to_review": ["golden-hepb-deferred"]
+}</pre>
+
+  <h2>Files changed</h2>
+  <p>Root commit <code>9d2ea02</code> adds 62 files / 7,011 insertions:</p>
+  <ul>
+    <li>Backend: <code>apps/api/app/</code> modules for models, seed, ingestion, extraction, red flags, bilirubin, alerts, predictions, doctor prep, API routes.</li>
+    <li>Backend tests: clinical rules, bilirubin nomogram, extraction precision, PHI/prediction guardrails, seed/workflows.</li>
+    <li>Frontend: Vite/React pages, components, tokens, a11y check, Vitest tests, production build config.</li>
+    <li>Docs/reports: architecture, ER diagram, AAP bilirubin source note, extraction precision, doctor-prep one-pager, screenshots/UX/a11y receipts.</li>
+  </ul>
+
+  <h2>Linear closeout plan/status</h2>
+  <ul>
+    <li>Mark ALF-215 through ALF-255 Done with [VERIFY] comments and commit/test evidence.</li>
+    <li>Leave ALF-214 open as <strong>“Awaiting Opus 4.8 review — Child Health Dashboard”</strong>.</li>
+    <li>Leave Linear project Open; do not mark Done until Opus review passes.</li>
+  </ul>
+
+  <h2>Residual risks / caveats for Opus</h2>
+  <ul>
+    <li><strong>Clinical source validation:</strong> AAP-2022 threshold table is local and test-covered, but Opus/pediatrician review should compare critical threshold points against the official guideline/PediTools independently.</li>
+    <li><strong>Prototype depth:</strong> This is an MVP scaffold with real guardrail tests, not a production medical device. It organizes evidence; it does not diagnose.</li>
+    <li><strong>Thomas-specific red flags:</strong> Rules are source-cited from available discharge/AVS docs, but should be re-reviewed when new discharge paperwork or pediatrician instructions arrive.</li>
+    <li><strong>Frontend data wiring:</strong> Current frontend uses representative local data fixtures for MVP UI/tests; API endpoints exist for the clinical data surfaces.</li>
+    <li><strong>Opus gate:</strong> ALF-214 must remain blocking until independent review is clean.</li>
+  </ul>
+
+  <h2>Next action</h2>
+  <p>Point Opus 4.8 at this repo, this report, commit <code>9d2ea02</code>, the risk:opus issues, and the clinical/privacy test suites. If Opus finds defects, file fix issues, repair, re-run <code>make ci</code> and <code>make smoke-dev</code>, then re-arm the same gate.</p>
+</main>
+</body>
+</html>
