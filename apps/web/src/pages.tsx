@@ -1,17 +1,43 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BilirubinChart, Card, ChartFrame, Recommendation, StatusBadge } from './components';
 import { alarmRecommendation, bilirubinCurve, bilirubinPoints, conditions, doctorQuestions, redFlagRules, routineRecommendation } from './data';
 import type { RecommendationPayload } from './types';
+
+type TodayApiPayload = {
+  child: string;
+  status: 'routine' | 'alarm';
+  status_strip: string;
+  primary_recommendation: RecommendationPayload;
+  reassurance_first: { label: string; source: string }[];
+  watching: string[];
+  red_flags: { key: string; label: string; source?: { source_id?: string; page?: number } | string }[];
+};
 
 export function TokenCatalog() {
   return <div className="grid"><h1>Design tokens: calm + alarm</h1><Card title="Status catalog">{(['routine', 'watch', 'soon', 'today', 'urgent', '911'] as const).map((urgency) => <p key={urgency}><StatusBadge urgency={urgency} /> status uses hue + shape + icon + text.</p>)}</Card><div className="alarm-screen"><div className="status-strip alarm">Alarm language preview — saturated, high contrast, not watercolor calm</div><Recommendation payload={alarmRecommendation} /></div></div>;
 }
 
 export function TodayPage({ alarm = false }: { alarm?: boolean }) {
-  const recommendation = alarm ? alarmRecommendation : routineRecommendation;
-  const shell = <><div className={`status-strip ${alarm ? 'alarm' : 'routine'}`}>{alarm ? 'URGENT RED FLAG ACTIVE — source-driven threshold crossed' : 'Routine watch — reassuring signs first, red flags one tap away'}</div><div className="grid two"><Card title="Current watch"><p>What is going well: feeding improved during hospital stay; low CRP/procalcitonin; clinically improved at discharge.</p><p>What we are watching: jaundice/DAT-positive hemolysis risk, culture-final confirmation, Hep B catch-up.</p></Card><Card title="Single next action"><Recommendation payload={recommendation} /></Card><Card title="Red flags"><ul>{redFlagRules.map((rule) => <li key={rule.key}><strong>{rule.label}</strong> — {rule.source}</li>)}</ul></Card><Card title="What changed"><p>Parechovirus detected; fever resolved; discharge instructions drive urgent thresholds.</p></Card></div></>;
-  return alarm ? <div className="alarm-screen" data-testid="today-alarm">{shell}</div> : <div data-testid="today-calm">{shell}</div>;
+  const [apiPayload, setApiPayload] = useState<TodayApiPayload | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/today${alarm ? '?alarm=true' : ''}`)
+      .then((response) => {
+        if (!response.ok) throw new Error(`API returned ${response.status}`);
+        return response.json() as Promise<TodayApiPayload>;
+      })
+      .then((payload) => { if (!cancelled) setApiPayload(payload); })
+      .catch((error: unknown) => { if (!cancelled) setApiError(error instanceof Error ? error.message : 'Unknown API error'); });
+    return () => { cancelled = true; };
+  }, [alarm]);
+  const recommendation = apiPayload?.primary_recommendation ?? (alarm ? alarmRecommendation : routineRecommendation);
+  const isAlarm = apiPayload?.status === 'alarm' || alarm;
+  const redFlags = apiPayload?.red_flags ?? redFlagRules;
+  const redFlagSource = (rule: TodayApiPayload['red_flags'][number] | typeof redFlagRules[number]) => typeof rule.source === 'string' ? rule.source : rule.source?.source_id ? `${rule.source.source_id} p.${rule.source.page ?? '?'}` : 'source attached';
+  const shell = <><div className="api-status" aria-live="polite">{apiPayload ? `Live API data loaded for ${apiPayload.child}` : apiError ? `API fallback: ${apiError}` : 'Loading live API data…'}</div><div className={`status-strip ${isAlarm ? 'alarm' : 'routine'}`}>{apiPayload?.status_strip ?? (isAlarm ? 'URGENT RED FLAG ACTIVE — source-driven threshold crossed' : 'Routine watch — reassuring signs first, red flags one tap away')}</div><div className="grid two"><Card title="Current watch"><p><strong>What is going well:</strong> {apiPayload?.reassurance_first.map((item) => item.label).join('; ') ?? 'feeding improved during hospital stay; low CRP/procalcitonin; clinically improved at discharge'}.</p><p><strong>What we are watching:</strong> {apiPayload?.watching.join('; ') ?? 'jaundice/DAT-positive hemolysis risk, culture-final confirmation, Hep B catch-up'}.</p></Card><Card title="Single next action"><Recommendation payload={recommendation} /></Card><Card title="Red flags"><ul>{redFlags.map((rule) => <li key={rule.key}><strong>{rule.label}</strong> — {redFlagSource(rule)}</li>)}</ul></Card><Card title="What changed"><p>Parechovirus detected; fever resolved; discharge instructions drive urgent thresholds.</p></Card></div></>;
+  return isAlarm ? <div className="alarm-screen" data-testid="today-alarm">{shell}</div> : <div data-testid="today-calm">{shell}</div>;
 }
 
 export function ReassuranceWatch() {

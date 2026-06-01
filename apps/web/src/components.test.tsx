@@ -1,9 +1,18 @@
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BilirubinChart, ChartFrame, ProvenanceDisclosure, Recommendation, StatusBadge } from './components';
 import { bilirubinCurve, bilirubinPoints, routineRecommendation } from './data';
 import { DoctorPrepPage, TodayPage, TokenCatalog } from './pages';
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('API unavailable in test'))));
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  cleanup();
+});
 
 
 describe('core component library', () => {
@@ -51,11 +60,12 @@ describe('pages and safety UX', () => {
     expect(screen.getByText(/saturated, high contrast/)).toBeInTheDocument();
   });
 
-  it('today page shows status above fold and switches to alarm language', () => {
+  it('today page shows status above fold and switches to alarm language', async () => {
     render(<TodayPage alarm />);
     expect(screen.getByTestId('today-alarm')).toHaveClass('alarm-screen');
     expect(screen.getByText(/URGENT RED FLAG ACTIVE/)).toBeInTheDocument();
     expect(screen.getByText(/Less than 4 wet diapers/)).toBeInTheDocument();
+    expect(await screen.findByText(/API fallback:/)).toBeInTheDocument();
   });
 
   it('doctor prep has parent/clinician mode over same questions', () => {
