@@ -1,0 +1,158 @@
+{
+  "generated_at": "2026-06-02T23:18:32Z",
+  "provider": "openai-codex",
+  "model": "gpt-image-2-medium",
+  "privacy_note": "Prompts used only requested first names/family roles/page titles/generic imagery; no diagnoses, dates, addresses, MRNs, or medical record details were sent.",
+  "assets": [
+    {
+      "slug": "family-today",
+      "title": "Today",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_160944_59f2ff92.png",
+      "file": "apps/web/src/assets/family-today.jpg",
+      "format": "jpeg",
+      "bytes": 308293,
+      "sha256": "081a7541557914d5440f744346e064c1a2afe16cce598386059a61867197956d",
+      "prompt": "Soft watercolor children's book illustration for a child health dashboard page titled Today. Five-bunny family with baby Thomas as focus; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "family-growth",
+      "title": "Growth",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161035_08262ce1.png",
+      "file": "apps/web/src/assets/family-growth.jpg",
+      "format": "jpeg",
+      "bytes": 345139,
+      "sha256": "95442bfba6dbc6d9c39902362d05f5b54e01a38c5592ed40e201b616883cf136",
+      "prompt": "Soft watercolor children's book illustration for Growth page. Five-bunny family with baby Thomas as focus; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "family-health",
+      "title": "Health",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161133_7f07d168.png",
+      "file": "apps/web/src/assets/family-health.jpg",
+      "format": "jpeg",
+      "bytes": 344091,
+      "sha256": "197b761c8f7da5e1b84f99eb4a29826244634f6568480ee9a2f4d82e7749c8db",
+      "prompt": "Soft watercolor children's book illustration for Health page. Five-bunny family with baby Thomas as focus; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "family-timeline",
+      "title": "Timeline",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161227_f2892574.png",
+      "file": "apps/web/src/assets/family-timeline.jpg",
+      "format": "jpeg",
+      "bytes": 275435,
+      "sha256": "e4f221e7949f98be09ed567f63dbb2f768e0cf01c133c199adb2842a45dcc298",
+      "prompt": "Soft watercolor children's book illustration for Timeline page. Five-bunny family with baby Thomas as focus; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "family-doctor-prep",
+      "title": "Doctor Prep",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161322_c6692179.png",
+      "file": "apps/web/src/assets/family-doctor-prep.jpg",
+      "format": "jpeg",
+      "bytes": 345568,
+      "sha256": "aa9076b26bfd3f3066a4c9e2bf7af5fee1ed724d0a0b645fd1a5bcb34648c6fe",
+      "prompt": "Soft watercolor children's book illustration for Doctor Prep page. Five-bunny family with baby Thomas as focus; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "organ-parechovirus",
+      "title": "Parechovirus",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161354_06c94e97.png",
+      "file": "apps/web/src/assets/organ-parechovirus.jpg",
+      "format": "jpeg",
+      "bytes": 103672,
+      "sha256": "b51323abdc23742327f3af5fa0dda15856ae5af0d3960e429957fef22dabd767",
+      "prompt": "Friendly abstract parechovirus watercolor icon; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "organ-brain-csf",
+      "title": "Brain / CSF",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161448_5c979023.png",
+      "file": "apps/web/src/assets/organ-brain-csf.jpg",
+      "format": "jpeg",
+      "bytes": 104191,
+      "sha256": "6b4c7635d89d4b88c25d4020bbefb7148ec57b14b280f48fabf251b16f317970",
+      "prompt": "Friendly newborn brain and CSF watercolor icon; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "organ-blood-liver",
+      "title": "Blood / Liver",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161543_475203ba.png",
+      "file": "apps/web/src/assets/organ-blood-liver.jpg",
+      "format": "jpeg",
+      "bytes": 101112,
+      "sha256": "9bb87721ffee307cd1159db3ff935c76d00d0925732e35bff5b59c2d4dbe586b",
+      "prompt": "Friendly blood/liver jaundice watercolor icon; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "organ-ear",
+      "title": "Ear",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161614_6f1b7cc4.png",
+      "file": "apps/web/src/assets/organ-ear.jpg",
+      "format": "jpeg",
+      "bytes": 120299,
+      "sha256": "2fef157e6514d2828f4f37d4f1fb0742cb14ffe834a002b6ddbb11a22e53e021",
+      "prompt": "Friendly newborn ear watercolor icon; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    },
+    {
+      "slug": "organ-neck",
+      "title": "Neck",
+      "source_cache_path": "/Users/johnchen/.hermes/cache/images/openai_codex_gpt-image-2-medium_20260602_161708_078251f4.png",
+      "file": "apps/web/src/assets/organ-neck.jpg",
+      "format": "jpeg",
+      "bytes": 90379,
+      "sha256": "d252762f5db8408d694e77fceb167f604f132a36ef633bcdcefd6a0359e8780d",
+      "prompt": "Friendly neck/head preference watercolor icon; no PHI.",
+      "vision_review": {
+        "non_scary": true,
+        "no_logos_or_watermarks": true,
+        "page_sign_or_icon_fit": true
+      }
+    }
+  ]
+}

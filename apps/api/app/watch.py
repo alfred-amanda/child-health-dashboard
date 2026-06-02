@@ -2,24 +2,23 @@ from __future__ import annotations
 
 from typing import Any
 
-RED_FLAG_ITEMS = [
-    {
-        'title': 'Unsuppressible shaking or seizure-like activity',
-        'action': 'Call 911 now per discharge instructions.',
-        'urgency': '911',
-        'confidence': 'high',
-        'source_type': 'discharge_red_flag',
-        'sources': [{'title': 'ER AVS May 31 2026', 'url': 'local:SRC-003-p2', 'date': '2026-05-31'}],
-    },
-    {
-        'title': 'Less than 4 wet diapers in 24 hours',
-        'action': 'Seek medical attention now per discharge instructions.',
-        'urgency': 'urgent',
-        'confidence': 'high',
-        'source_type': 'discharge_red_flag',
-        'sources': [{'title': 'ER AVS May 31 2026', 'url': 'local:SRC-003-p2', 'date': '2026-05-31'}],
-    },
-]
+from .red_flags import RedFlagRule
+
+
+def _rule_to_watch_item(rule: RedFlagRule) -> dict[str, Any]:
+    title = rule.label
+    if rule.threshold is not None and rule.unit:
+        threshold = f'{rule.threshold:g} {rule.unit}'
+        title = title.replace('source threshold', threshold)
+    return {
+        'title': title,
+        'action': rule.action,
+        'urgency': rule.urgency,
+        'confidence': 'high' if rule.confidence >= 0.95 else 'moderate',
+        'source_type': 'discharge_parser_rule',
+        'rule_key': rule.key,
+        'sources': [{'title': rule.source_title, 'url': f'local:{rule.source_id}-p{rule.page or "unknown"}', 'date': '2026-05-31', 'snippet': rule.snippet}],
+    }
 
 FORBIDDEN_REASSURANCE = ('safe to wait', 'safe to defer', 'safe to skip', 'safe to delay')
 ROUTINE_DOCTOR_REFRAINS = ('ask your pediatrician', 'ask your doctor', 'consult your doctor', 'consult a physician')
@@ -45,8 +44,9 @@ def _normalize_research_signal(signal: dict[str, Any]) -> dict[str, Any]:
     return item
 
 
-def build_what_to_watch(*, research_signals: list[dict[str, Any]] | None = None) -> dict[str, Any]:
-    actionable = [dict(item) for item in RED_FLAG_ITEMS]
+def build_what_to_watch(*, red_flag_rules: list[RedFlagRule] | None = None, research_signals: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    discharge_items = sorted([_rule_to_watch_item(rule) for rule in red_flag_rules or []], key=lambda item: 0 if item['urgency'] == '911' else 1)
+    actionable = discharge_items
     lower_confidence: list[dict[str, Any]] = []
     for signal in research_signals or []:
         item = _normalize_research_signal(signal)

@@ -128,7 +128,7 @@ def research(refresh: bool = False) -> dict[str, Any]:
 @app.get('/api/watch')
 def watch() -> dict[str, Any]:
     digest = load_weekly_digest(get_settings().storage_root)
-    return build_what_to_watch(research_signals=[
+    return build_what_to_watch(red_flag_rules=load_thomas_rules(Path(get_settings().seed_root)), research_signals=[
         {'title': update['title'], 'action': update['summary'], 'confidence': update['confidence'], 'sources': update['sources']}
         for update in digest['updates']
     ])

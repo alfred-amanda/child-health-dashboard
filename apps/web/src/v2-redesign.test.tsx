@@ -7,7 +7,7 @@ import App from './App';
 import { BunnyBackdrop, GrowthPage, TodayPage } from './pages';
 import { contrastRatio } from './tokens';
 
-type ArtManifest = { provider: string; model: string; subject_name: string; assets: { season: string; file: string; format: string; bytes: number; sha256: string; prompt: string; vision_review: { name_exact: boolean; newborn_appropriate: boolean } }[] };
+type ArtManifest = { provider: string; model: string; subject_name?: string; privacy_note?: string; assets: { season?: string; slug?: string; file: string; format: string; bytes: number; sha256: string; prompt: string; vision_review: { name_exact?: boolean; newborn_appropriate?: boolean; non_scary?: boolean; no_logos_or_watermarks?: boolean } }[] };
 
 function repoPath(...segments: string[]) {
   let current = process.cwd();
@@ -23,6 +23,10 @@ function repoPath(...segments: string[]) {
 
 function loadArtProvenance() {
   return JSON.parse(readFileSync(repoPath('docs/assets/thomas-bunny-art-provenance.json'), 'utf8')) as ArtManifest;
+}
+
+function loadV6ArtProvenance() {
+  return JSON.parse(readFileSync(repoPath('docs/assets/v6-generated-art-provenance.json'), 'utf8')) as ArtManifest;
 }
 
 function readAsset(file: string) {
@@ -182,5 +186,33 @@ describe('v2 redesign contract', () => {
     fireEvent.change(screen.getByLabelText(/caregiver/i), { target: { value: 'John' } });
     fireEvent.click(screen.getByRole('button', { name: /save measurement/i }));
     expect(screen.getByText(/Saved parent-entered measurement from John/i)).toBeInTheDocument();
+  });
+
+  it('renders V6 infant body hero, right rail, concern detail, and friendly API-down state', async () => {
+    vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('network timeout'))));
+    render(<TodayPage />);
+    expect(await screen.findByText(/API fallback: API down, using local fallback data/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Clickable infant body concern map/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Brain \/ CSF/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Blood \/ Liver/i }));
+    expect(screen.getByText(/Jaundice \/ DAT/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Real metrics and care logistics/i)).toHaveTextContent('not yet recorded');
+    expect(screen.getByText(/Medication list: not yet recorded/i)).toBeInTheDocument();
+  });
+
+  it('commits generated V6 family scene and organ art provenance with SHA checks', () => {
+    const artProvenance = loadV6ArtProvenance();
+    expect(artProvenance.provider).toBe('openai-codex');
+    expect(artProvenance.model).toBe('gpt-image-2-medium');
+    expect(artProvenance.assets.map((asset) => asset.prompt).join(' ')).not.toMatch(/diagnos|MRN|address/i);
+    for (const slug of ['family-today', 'family-growth', 'family-health', 'family-timeline', 'family-doctor-prep', 'organ-parechovirus', 'organ-brain-csf', 'organ-blood-liver', 'organ-ear', 'organ-neck']) {
+      const asset = artProvenance.assets.find((item) => item.slug === slug);
+      expect(asset?.file).toBe(`apps/web/src/assets/${slug}.jpg`);
+      const bytes = readFileSync(repoPath(asset?.file ?? ''));
+      expect(asset?.bytes).toBe(bytes.byteLength);
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(asset?.sha256);
+      expect(asset?.vision_review.non_scary).toBe(true);
+      expect(asset?.vision_review.no_logos_or_watermarks).toBe(true);
+    }
   });
 });

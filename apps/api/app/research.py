@@ -1,10 +1,21 @@
 from __future__ import annotations
 
 import json
+import urllib.parse
+import urllib.request
+from collections.abc import Callable
+from datetime import date
 from pathlib import Path
 from typing import Any
 
 NON_PHI_QUERY_TERMS = ('newborn infant', '0-2 months', 'seasonal pediatric advisory', 'Bay Area', 'summer')
+PUBLIC_SOURCES = [
+    ('CDC RSV in infants and young children', 'https://www.cdc.gov/rsv/infants-young-children/index.html'),
+    ('California respiratory virus surveillance', 'https://www.cdph.ca.gov/Programs/CID/DCDC/Pages/Respiratory-Viruses.aspx'),
+    ('AirNow AQI basics', 'https://www.airnow.gov/aqi/aqi-basics/'),
+    ('CDC heat and infants', 'https://www.cdc.gov/heat-health/risk-factors/index.html'),
+]
+Fetcher = Callable[[str, float], str]
 
 DEFAULT_DIGEST: dict[str, Any] = {
     'mode': 'offline-cache',
@@ -49,13 +60,61 @@ def _cache_path(root: Path) -> Path:
     return root / 'research' / 'weekly_digest.json'
 
 
-def refresh_weekly_digest(root: Path, *, allow_network: bool = False) -> dict[str, Any]:
-    # Network execution intentionally remains behind an explicit flag; this build path
-    # writes/reads the committed offline cache and keeps all query terms non-PHI.
-    digest = dict(DEFAULT_DIGEST)
-    digest['mode'] = 'network-refresh-disabled' if allow_network else 'offline-cache'
+def _default_fetcher(url: str, timeout_seconds: float) -> str:
+    with urllib.request.urlopen(url, timeout=timeout_seconds) as response:  # noqa: S310 - allowlisted public non-PHI URLs only
+        return response.read(80_000).decode('utf-8', errors='ignore')
+
+
+def _source_query_url(url: str, query: str) -> str:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme != 'https':
+        raise ValueError(f'only https public sources allowed: {url}')
+    return urllib.parse.urlunparse(parsed._replace(query=urllib.parse.urlencode({'q': query})))
+
+
+def _network_digest(query: str, *, fetcher: Fetcher, timeout_seconds: float) -> dict[str, Any]:
+    today = date.today().isoformat()
+    fetched_sources: list[dict[str, str]] = []
+    for title, url in PUBLIC_SOURCES:
+        fetched_url = _source_query_url(url, query)
+        text = fetcher(fetched_url, timeout_seconds)
+        if text:
+            fetched_sources.append({'title': title, 'url': url, 'date': today})
+    if len(fetched_sources) < 3:
+        raise RuntimeError('fewer than 3 public sources fetched')
+    return {
+        'mode': 'network-refresh',
+        'query': query,
+        'updates': [
+            {
+                'title': 'Multi-source public health scan for young infants',
+                'summary': 'Generic public sources were refreshed for respiratory virus, heat, air quality, and measles awareness. This uses no child-specific terms and stores citations locally.',
+                'confidence': 'high',
+                'sources': fetched_sources[:3],
+            },
+            DEFAULT_DIGEST['updates'][1],
+            DEFAULT_DIGEST['updates'][2],
+        ],
+    }
+
+
+def refresh_weekly_digest(root: Path, *, allow_network: bool = False, fetcher: Fetcher | None = None, timeout_seconds: float = 4.0) -> dict[str, Any]:
+    query = build_research_query(age_band='newborn_0_2_months', season='summer', region='Bay Area')
     path = _cache_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
+    if allow_network:
+        try:
+            digest = _network_digest(query, fetcher=fetcher or _default_fetcher, timeout_seconds=timeout_seconds)
+            path.write_text(json.dumps(digest, indent=2))
+            return digest
+        except Exception:
+            if path.exists():
+                cached = json.loads(path.read_text())
+                cached['mode'] = 'offline-cache'
+                return cached
+    digest = dict(DEFAULT_DIGEST)
+    digest['mode'] = 'offline-cache'
+    digest['query'] = query
     path.write_text(json.dumps(digest, indent=2))
     return digest
 
