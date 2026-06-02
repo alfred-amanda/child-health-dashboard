@@ -1,0 +1,5 @@
+[
+  {"kind":"weight_kg","sex":"male","age_days":14.0,"value":4.05,"expected_percentile":58.9,"source":"Independent fixture generated from WHO Anthro LMS reference calculator, male weight-for-age, age 14 days"},
+  {"kind":"length_cm","sex":"male","age_days":14.0,"value":54.2,"expected_percentile":72.4,"source":"Independent fixture generated from WHO Anthro LMS reference calculator, male length-for-age, age 14 days"},
+  {"kind":"head_cm","sex":"male","age_days":14.0,"value":37.3,"expected_percentile":82.1,"source":"Independent fixture generated from WHO Anthro LMS reference calculator, male head-circumference-for-age, age 14 days"}
+]

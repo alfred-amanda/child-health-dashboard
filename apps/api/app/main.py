@@ -13,12 +13,15 @@ from .bilirubin import BilirubinPoint, assess, threshold_curve
 from .config import get_settings
 from .db import get_session, init_db
 from .doctor_prep import THOMAS_QUESTIONS
+from .growth import MeasurementInput, compute_growth_snapshot
 from .ingestion import ingest_file
 from .models import Condition, Encounter, LabResult, ParentObservation, Question, Task
 from .predictions import forecast_gaps
 from .recommendations import RecommendationPayload, SourceRef
 from .red_flags import Observation, evaluate_observation, load_thomas_rules
+from .research import load_weekly_digest, refresh_weekly_digest
 from .seed import import_thomas_seed, load_profile
+from .watch import build_what_to_watch
 
 app = FastAPI(title='Child Health Dashboard API')
 app.add_middleware(CORSMiddleware, allow_origins=['http://localhost:5173'], allow_credentials=True, allow_methods=['*'], allow_headers=['*'])
@@ -99,10 +102,36 @@ def bilirubin_chart() -> dict[str, Any]:
     return {'points': points, 'threshold_curve': curve, 'risk_factor': 'DAT-positive / isoimmune hemolytic disease', 'source': 'local AAP-2022 table'}
 
 
+@app.get('/api/growth')
+def growth() -> dict[str, Any]:
+    return compute_growth_snapshot([
+        MeasurementInput(kind='weight', value=8.93, unit='lb', measured_at='2026-05-31', actor='seed-record'),
+        MeasurementInput(kind='length', value=21.34, unit='in', measured_at='2026-05-31', actor='seed-record'),
+        MeasurementInput(kind='head', value=14.69, unit='in', measured_at='2026-05-31', actor='seed-record'),
+    ], sex='male', dob='2026-05-17')
+
+
 @app.get('/api/charts/growth')
 def growth_chart() -> dict[str, Any]:
-    profile = load_profile()
-    return {'standard': 'WHO-0-24-months', 'headline': 'newborn weight loss/regain leads', 'points': profile['growth_feeding']['weights'], 'projection': 'suppressed only after sparse-data gate if fewer than 4 points'}
+    snapshot = growth()
+    return {'standard': snapshot['standard'], 'headline': 'newborn weight loss/regain leads', 'points': snapshot['measurements'], 'projection': snapshot['projection'], 'percentiles': snapshot['percentiles']}
+
+
+@app.get('/api/research')
+def research(refresh: bool = False) -> dict[str, Any]:
+    cache_root = get_settings().storage_root
+    if refresh:
+        return refresh_weekly_digest(cache_root, allow_network=False)
+    return load_weekly_digest(cache_root)
+
+
+@app.get('/api/watch')
+def watch() -> dict[str, Any]:
+    digest = load_weekly_digest(get_settings().storage_root)
+    return build_what_to_watch(research_signals=[
+        {'title': update['title'], 'action': update['summary'], 'confidence': update['confidence'], 'sources': update['sources']}
+        for update in digest['updates']
+    ])
 
 
 @app.get('/api/charts/labs')

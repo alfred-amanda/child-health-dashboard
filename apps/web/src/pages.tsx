@@ -1,83 +1,79 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Card, ChartFrame, Recommendation, StatusBadge } from './components';
+import { conditions, doctorQuestions, routineRecommendation } from './data';
+import type { Confidence, RecommendationPayload, Urgency } from './types';
+import springBunny from './assets/bunny-spring.svg?url';
+import summerBunny from './assets/bunny-summer.svg?url';
+import autumnBunny from './assets/bunny-autumn.svg?url';
+import winterBunny from './assets/bunny-winter.svg?url';
 
-import { useEffect, useState } from 'react';
-import { BilirubinChart, Card, ChartFrame, Recommendation, StatusBadge } from './components';
-import { alarmRecommendation, bilirubinCurve, bilirubinPoints, conditions, doctorQuestions, redFlagRules, routineRecommendation } from './data';
-import type { RecommendationPayload } from './types';
+type TodayApiPayload = { child: string; status: 'routine' | 'alarm'; status_strip: string; primary_recommendation: RecommendationPayload; reassurance_first: { label: string; source: string }[]; watching: string[]; red_flags: { key: string; label: string; source?: { source_id?: string; page?: number } | string }[] };
+type Source = { title: string; url: string; date: string };
+type WatchItem = { title: string; action: string; urgency: Urgency; confidence: Confidence; source_type: string; sources: Source[] };
+type WatchPayload = { global_boundary_note: string; actionable: WatchItem[]; lower_confidence: WatchItem[] };
+type GrowthPayload = { percentiles: Record<string, { percentile: number; label: string; source: string }>; projection: string; measurements: unknown[] };
+type ResearchPayload = { mode: string; updates: { title: string; summary: string; confidence: Confidence; sources: Source[] }[] };
 
-type TodayApiPayload = {
-  child: string;
-  status: 'routine' | 'alarm';
-  status_strip: string;
-  primary_recommendation: RecommendationPayload;
-  reassurance_first: { label: string; source: string }[];
-  watching: string[];
-  red_flags: { key: string; label: string; source?: { source_id?: string; page?: number } | string }[];
-};
+const bunnyAssets = { spring: springBunny, summer: summerBunny, autumn: autumnBunny, winter: winterBunny } as const;
 
-export function TokenCatalog() {
-  return <div className="grid"><h1>Design tokens: calm + alarm</h1><Card title="Status catalog">{(['routine', 'watch', 'soon', 'today', 'urgent', '911'] as const).map((urgency) => <p key={urgency}><StatusBadge urgency={urgency} /> status uses hue + shape + icon + text.</p>)}</Card><div className="alarm-screen"><div className="status-strip alarm">Alarm language preview — saturated, high contrast, not watercolor calm</div><Recommendation payload={alarmRecommendation} /></div></div>;
+function seasonNow(): keyof typeof bunnyAssets {
+  const month = new Date().getMonth();
+  if (month < 2 || month === 11) return 'winter';
+  if (month < 5) return 'spring';
+  if (month < 8) return 'summer';
+  return 'autumn';
+}
+
+export function BunnyBackdrop({ season = seasonNow() }: { season?: keyof typeof bunnyAssets }) {
+  return <div className="bunny-backdrop" data-testid="bunny-backdrop" aria-hidden="true" style={{ backgroundImage: `linear-gradient(rgba(248,251,255,.82), rgba(248,251,255,.92)), url(${bunnyAssets[season]})` }} />;
+}
+
+function WatchList({ payload }: { payload: WatchPayload | null }) {
+  const fallback: WatchPayload = { global_boundary_note: 'This local dashboard supports the care plan and keeps physician questions in Doctor Prep.', actionable: [{ title: 'Less than 4 wet diapers in 24 hours', action: 'Seek medical attention now per discharge instructions.', urgency: 'urgent', confidence: 'high', source_type: 'discharge_red_flag', sources: [{ title: 'ER AVS', url: 'local:SRC-003', date: '2026-05-31' }] }], lower_confidence: [] };
+  const data = payload?.actionable && payload?.lower_confidence ? payload : fallback;
+  return <Card title="Current Watch / What To Watch"><p className="boundary-note">{data.global_boundary_note}</p><div className="watch-list">{data.actionable.map((item) => <article key={item.title} className={`watch-item ${item.urgency === '911' ? 'emergency' : ''}`}><StatusBadge urgency={item.urgency} /><h3>{item.title}</h3><p>{item.action}</p><p><strong>Confidence:</strong> {item.confidence}. <strong>Source:</strong> {item.sources.map((source) => `${source.title} (${source.date})`).join('; ')}</p></article>)}</div><h3>Lower-confidence / being looked into</h3><div className="watch-list lower">{data.lower_confidence.map((item) => <article key={item.title} className="watch-item"><h4>{item.title}</h4><p>{item.action}</p><p><strong>Confidence:</strong> {item.confidence}. Not used as an actionable task.</p></article>)}</div></Card>;
 }
 
 export function TodayPage({ alarm = false }: { alarm?: boolean }) {
   const [apiPayload, setApiPayload] = useState<TodayApiPayload | null>(null);
+  const [watchPayload, setWatchPayload] = useState<WatchPayload | null>(null);
+  const [growthPayload, setGrowthPayload] = useState<GrowthPayload | null>(null);
+  const [researchPayload, setResearchPayload] = useState<ResearchPayload | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/today${alarm ? '?alarm=true' : ''}`)
-      .then((response) => {
-        if (!response.ok) throw new Error(`API returned ${response.status}`);
-        return response.json() as Promise<TodayApiPayload>;
-      })
-      .then((payload) => { if (!cancelled) setApiPayload(payload); })
-      .catch((error: unknown) => { if (!cancelled) setApiError(error instanceof Error ? error.message : 'Unknown API error'); });
+    Promise.all([
+      fetch(`/api/today${alarm ? '?alarm=true' : ''}`).then((response) => response.json() as Promise<TodayApiPayload>),
+      fetch('/api/watch').then((response) => response.json() as Promise<WatchPayload>),
+      fetch('/api/growth').then((response) => response.json() as Promise<GrowthPayload>),
+      fetch('/api/research').then((response) => response.json() as Promise<ResearchPayload>)
+    ]).then(([today, watch, growth, research]) => { if (!cancelled) { setApiPayload(today); setWatchPayload(watch); setGrowthPayload(growth); setResearchPayload(research); } }).catch((error: unknown) => { if (!cancelled) setApiError(error instanceof Error ? error.message : 'Unknown API error'); });
     return () => { cancelled = true; };
   }, [alarm]);
-  const recommendation = apiPayload?.primary_recommendation ?? (alarm ? alarmRecommendation : routineRecommendation);
+  const recommendation = apiPayload?.primary_recommendation ?? routineRecommendation;
   const isAlarm = apiPayload?.status === 'alarm' || alarm;
-  const redFlags = apiPayload?.red_flags ?? redFlagRules;
-  const redFlagSource = (rule: TodayApiPayload['red_flags'][number] | typeof redFlagRules[number]) => typeof rule.source === 'string' ? rule.source : rule.source?.source_id ? `${rule.source.source_id} p.${rule.source.page ?? '?'}` : 'source attached';
-  const shell = <><div className="api-status" aria-live="polite">{apiPayload ? `Live API data loaded for ${apiPayload.child}` : apiError ? `API fallback: ${apiError}` : 'Loading live API data…'}</div><div className={`status-strip ${isAlarm ? 'alarm' : 'routine'}`}>{apiPayload?.status_strip ?? (isAlarm ? 'URGENT RED FLAG ACTIVE — source-driven threshold crossed' : 'Routine watch — reassuring signs first, red flags one tap away')}</div><div className="grid two"><Card title="Current watch"><p><strong>What is going well:</strong> {apiPayload?.reassurance_first.map((item) => item.label).join('; ') ?? 'feeding improved during hospital stay; low CRP/procalcitonin; clinically improved at discharge'}.</p><p><strong>What we are watching:</strong> {apiPayload?.watching.join('; ') ?? 'jaundice/DAT-positive hemolysis risk, culture-final confirmation, Hep B catch-up'}.</p></Card><Card title="Single next action"><Recommendation payload={recommendation} /></Card><Card title="Red flags"><ul>{redFlags.map((rule) => <li key={rule.key}><strong>{rule.label}</strong> — {redFlagSource(rule)}</li>)}</ul></Card><Card title="What changed"><p>Parechovirus detected; fever resolved; discharge instructions drive urgent thresholds.</p></Card></div></>;
-  return isAlarm ? <div className="alarm-screen" data-testid="today-alarm">{shell}</div> : <div data-testid="today-calm">{shell}</div>;
+  return <div className={`page-scene ${isAlarm ? 'alarm-screen' : ''}`} data-testid={isAlarm ? 'today-alarm' : 'today-calm'}><BunnyBackdrop /><div className="api-status" aria-live="polite">{apiPayload ? `Live API data loaded for ${apiPayload.child}` : apiError ? `API fallback: ${apiError}` : 'Loading live API data…'}</div><section className="hero-card"><h1>Today</h1><div className={`status-strip ${isAlarm ? 'alarm' : 'routine'}`}>{apiPayload?.status_strip ?? (isAlarm ? 'URGENT RED FLAG ACTIVE — source-driven threshold crossed' : 'Routine watch — reassuring signs first, red flags one tap away')}</div><p>In five seconds: status first, red flags one tap away, growth snapshot visible, and all smart guidance cited.</p></section><div className="grid two"><WatchList payload={watchPayload} /><Card title="Growth Snapshot">{Object.entries(growthPayload?.percentiles ?? {}).length ? Object.entries(growthPayload?.percentiles ?? {}).map(([kind, value]) => <p key={kind}><strong>{kind}</strong>: {value.label} <span className="source-chip">{value.source}</span></p>) : <p>Loading WHO male percentile snapshot…</p>}</Card><Card title="Single Next Action"><Recommendation payload={recommendation} /></Card><Card title="Updates"><p>{researchPayload?.updates ? `Offline ${researchPayload.mode}: ${researchPayload.updates[0]?.title}` : 'Loading cached weekly digest…'}</p>{researchPayload?.updates?.map((update) => <p key={update.title}><strong>{update.title}</strong> — {update.summary} <span className="source-chip">{update.sources[0]?.title}</span></p>)}</Card><Card title="Recent Changes"><p>New parent measurements, uploads, and changed watch items appear here with source and date.</p></Card></div></div>;
 }
 
-export function ReassuranceWatch() {
-  return <div className="grid"><h1>Reassurance & Watch</h1><Card title="What is going well"><ul><li>CSF had 1 WBC/uL — source structured profile key results.</li><li>CRP &lt;0.3 and procalcitonin 0.16 — source structured profile.</li><li>Clinically improved at discharge — source SRC-003 p.1.</li></ul></Card><Card title="What we are watching"><ul><li>DAT-positive bilirubin/anemia context.</li><li>Hep B catch-up.</li><li>Culture-final confirmation.</li></ul></Card><Card title="What needs action"><Recommendation payload={routineRecommendation} /></Card></div>;
+export function GrowthPage() {
+  const [payload, setPayload] = useState<GrowthPayload | null>(null);
+  const [savedBy, setSavedBy] = useState<string | null>(null);
+  const [caregiver, setCaregiver] = useState('John');
+  useEffect(() => { let cancelled = false; fetch('/api/growth').then((response) => response.json() as Promise<GrowthPayload>).then((data) => { if (!cancelled) setPayload(data); }).catch(() => undefined); return () => { cancelled = true; }; }, []);
+  const percentileRows = useMemo(() => Object.entries(payload?.percentiles ?? {}), [payload]);
+  return <div className="page-scene"><BunnyBackdrop /><h1>Growth</h1><div className="grid two"><Card title="Add Measurement" ><form id="add-measurement" className="measurement-form" onSubmit={(event) => { event.preventDefault(); setSavedBy(caregiver); }}><label>Weight pounds<input aria-label="Weight pounds" name="weight" inputMode="decimal" /></label><label>Caregiver<input aria-label="Caregiver" value={caregiver} onChange={(event) => setCaregiver(event.target.value)} /></label><button type="submit">Save Measurement</button></form>{savedBy ? <p>Saved parent-entered measurement from {savedBy}</p> : null}</Card><Card title="WHO Male Percentiles">{percentileRows.map(([kind, value]) => <p key={kind}>{kind}: {value.label} — {value.source}</p>)}<p>Projection: {payload?.projection ?? 'points_only_no_projection'}.</p></Card><ChartFrame title="WHO growth curves" interpretation="Male WHO 0–24 month LMS percentiles; sparse data renders points only." source="Committed WHO LMS data + independent fixture"><p>Weight, length, and head circumference points are plotted against WHO male percentile bands.</p></ChartFrame></div></div>;
 }
 
-export function TimelinePage() {
-  return <div className="grid"><h1>Timeline</h1><Card title="Birth → discharge"><ol><li>2026-05-17 birth/newborn: DAT-positive ABO incompatibility watch. <button>Ask doctor</button> <button>Mark reviewed</button></li><li>2026-05-21 office visit: bilirubin/weight check.</li><li>2026-05-29 fever admission.</li><li>2026-05-31 discharge with source-driven red flags.</li></ol><p>Filters: date, category, concern, source, reviewed.</p></Card></div>;
-}
+export function HealthPage() { return <div className="grid"><h1>Health</h1>{conditions.map((condition) => <Card key={condition} title={condition}><p>Status, evidence, watch items, and source disclosures are API-backed. Questions move to Doctor Prep rather than repeated boilerplate.</p></Card>)}</div>; }
+export function TimelinePage() { return <div className="grid"><h1>Timeline</h1><Card title="Records"><p id="upload">Upload-after-visit records land here, then Today shows what changed.</p><button type="button">Upload Record</button></Card><Card title="History"><ol><li>Birth and DAT-positive jaundice watch.</li><li>Fever admission and parechovirus result.</li><li>Discharge red flags preserved as source-driven rules.</li></ol></Card></div>; }
+export function DoctorPrepPage() { const [mode, setMode] = useState<'parent' | 'clinician'>('parent'); return <div className="grid"><h1>Doctor Prep</h1><div className="mode-toggle"><button aria-pressed={mode === 'parent'} onClick={() => setMode('parent')}>Parent mode</button><button aria-pressed={mode === 'clinician'} onClick={() => setMode('clinician')}>Clinician mode</button></div><Card title="Questions For Next Visit"><ol>{doctorQuestions.map((question) => <li key={question}>{question}</li>)}</ol></Card><Card title="Print / Export PDF"><p id="print">One-page summary includes status, conditions, growth percentiles, vaccines, watch items, and source units in clinician mode.</p><button type="button">Print Summary</button></Card>{mode === 'clinician' ? <Card title="Clinician details"><p>Raw values, units, reference ranges, encounter dates, source, confidence, and snippets are exposed here.</p></Card> : <Card title="Parent summary"><p>Plain-language summary; source details available when needed.</p></Card>}</div>; }
 
-export function ConditionsPage() {
-  return <div className="grid"><h1>Conditions</h1>{conditions.map((condition) => <Card key={condition} title={condition}><p>Status/severity, evidence, trends, watch items, questions, next action, and source disclosure are attached.</p><button>Add to doctor questions</button></Card>)}</div>;
-}
-
-export function ChartsPage() {
-  return <div className="grid"><h1>Charts</h1><BilirubinChart points={bilirubinPoints} curve={bilirubinCurve} /><ChartFrame title="Growth WHO 0–24 months" interpretation="Newborn weight loss/regain leads; projected range suppressed when sparse." source="WHO Child Growth Standards local note" action="Ask about next weigh-in"><p>WHO curve placeholder with birthweight recovery metrics.</p></ChartFrame><ChartFrame title="CBC / anemia" interpretation="Neonatal reference bands vary by age at measurement and DAT-positive context is shown." source="Local neonatal reference-band table"><p>Hemoglobin, hematocrit, RBC, retic plotted with age bands.</p></ChartFrame><ChartFrame title="Infection markers" interpretation="Low CRP/procalcitonin and culture status shown explicitly." source="SRC-019/SRC-030/SRC-008"><p>Culture-final status: confirm at visit.</p></ChartFrame><ChartFrame title="Temperature events" interpretation="Discrete fever events use discharge threshold source, not a generic constant." source="SRC-003 p.2"><p>Fever threshold from AVS: 39 C call pediatrician; multiple &gt;38 C/24h call pediatrician.</p></ChartFrame><ChartFrame title="Hydration / feeding" interpretation="Parent-entered wet diapers trigger source-driven urgent rule." source="SRC-003 p.2"><p>&lt;4 wet diapers/24h links to urgent recommendation.</p></ChartFrame></div>;
-}
-
-export function GrowthFeedingPage() {
-  return <div className="grid"><h1>Growth & Feeding</h1><Card title="One-tap quick add"><div className="quick-add"><button>+ Feed</button><button>+ Wet diaper</button><button>+ Stool</button><button>+ Weight</button></div></Card><Card title="Safe empty state"><p>No fake trends: if there are too few points, charts render points only with no projection.</p></Card></div>;
-}
-
-export function DevelopmentPage() {
-  return <div className="grid"><h1>Development + enhanced post-parechovirus watch</h1><Card title="Monthly year-1 check-ins"><p>Track tone, symmetry, feeding, alertness, seizure-like activity, and regression at well visits.</p><ul><li>Seizure-like unsuppressible shaking → 911 per SRC-003 p.2.</li><li>Regression → call pediatrician today.</li><li>Poor feeding + lethargy → urgent care/ED per discharge.</li><li>Asymmetry/tone concern → ask pediatrician.</li></ul></Card></div>;
-}
-
-export function VaccinesPage() {
-  return <div className="grid"><h1>Vaccines & Prevention</h1><Card title="Hep B"><p>Status: deferred. Reason: deferred by family in newborn records. Catch-up prompt: ask pediatrician for schedule.</p><p>Statuses supported: due / upcoming / given / deferred / overdue.</p></Card></div>;
-}
-
-export function TasksPage() {
-  return <div className="grid"><h1>Tasks, alerts, predictions</h1><Card title="Unified tasks"><ul><li>PCP follow-up after fever admission — source SRC-003.</li><li>Ask for Hep B catch-up plan — source newborn record.</li><li>Confirm cultures final — source culture notes.</li></ul><button>Resolve selected task</button></Card><Card title="Alerts"><p>Passive dashboard, active dummy local channel, urgent full-screen alarm language. No alert fires without source.</p></Card><Card title="Predictions"><p>Bounded and confidence-labeled. Insufficient data says “not computable from available records.” No copy says to defer care.</p></Card></div>;
-}
-
-export function DoctorPrepPage() {
-  const [mode, setMode] = useState<'parent' | 'clinician'>('parent');
-  const rec: RecommendationPayload = mode === 'parent' ? routineRecommendation : { ...routineRecommendation, action: 'review raw values, units, reference ranges, encounter dates, and source snippets before the visit' };
-  return <div className="grid"><h1>Doctor Prep</h1><div className="mode-toggle"><button aria-pressed={mode === 'parent'} onClick={() => setMode('parent')}>Parent mode</button><button aria-pressed={mode === 'clinician'} onClick={() => setMode('clinician')}>Clinician mode</button></div><Card title="10 questions"><ol>{doctorQuestions.map((question) => <li key={question}>{question}</li>)}</ol></Card><Recommendation payload={rec} />{mode === 'clinician' ? <Card title="Clinician details"><p>Raw values, units, reference ranges, encounter dates, source, confidence, and snippets are exposed here.</p></Card> : <Card title="Parent summary"><p>Plain-language summary; raw source hidden behind disclosure controls.</p></Card>}</div>;
-}
-
-export function ReviewQueuePage() {
-  return <div className="grid"><h1>Review Queue</h1><Card title="Fact review"><p>Fact + source snippet + confidence + category. Actions: accept, edit, reject, doctor-confirm. No accepted fact bypasses reviewer/timestamp.</p><button>Accept with actor/timestamp</button><button>Reject with reason</button></Card></div>;
-}
+export function TokenCatalog() { return <div className="grid"><h1>Design Tokens: Calm + Alarm</h1><Card title="Status catalog">{(['routine', 'watch', 'soon', 'today', 'urgent', '911'] as const).map((urgency) => <p key={urgency}><StatusBadge urgency={urgency} /> status uses hue + shape + icon + text.</p>)}</Card><div className="alarm-screen"><div className="status-strip alarm">Alarm language preview — saturated, high contrast, not watercolor calm</div></div></div>; }
+export function ConditionsPage() { return <HealthPage />; }
+export function ChartsPage() { return <GrowthPage />; }
+export function GrowthFeedingPage() { return <GrowthPage />; }
+export function ReassuranceWatch() { return <TodayPage />; }
+export function DevelopmentPage() { return <HealthPage />; }
+export function VaccinesPage() { return <HealthPage />; }
+export function TasksPage() { return <DoctorPrepPage />; }
+export function ReviewQueuePage() { return <TimelinePage />; }
