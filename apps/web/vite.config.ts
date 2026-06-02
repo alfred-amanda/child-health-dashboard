@@ -5,9 +5,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react()],
   server: {
-    proxy: {
-      '/api': 'http://127.0.0.1:8008'
-    }
+    host: '127.0.0.1',
+    port: 5173,
+    // Fail loudly instead of silently drifting to 5174 when 5173 is busy.
+    strictPort: true
   },
   test: {
     environment: 'jsdom',
