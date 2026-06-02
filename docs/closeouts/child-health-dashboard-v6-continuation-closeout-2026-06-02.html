@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Child Health Dashboard v6 Continuation Closeout — 2026-06-02</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;line-height:1.55;color:#17324d;background:#fff9f1;margin:0;padding:32px}main{max-width:1100px;margin:auto;background:white;border:1px solid #b9d2e8;border-radius:24px;padding:28px;box-shadow:0 16px 35px rgba(53,86,112,.12)}h1,h2{color:#12304a}.pass{color:#17623a;font-weight:800}.warn{color:#8a4f00;font-weight:800}.open{color:#7f0000;font-weight:800}code{background:#f4f7fb;padding:2px 6px;border-radius:6px}li{margin:.35rem 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.card{border:1px solid #c6d8e8;border-radius:18px;padding:16px;background:#f8fbff}</style>
+</head>
+<body><main>
+<h1>Child Health Dashboard v6 Continuation Closeout</h1>
+<p><strong>Run:</strong> /goal continuation from John Telegram voice, 2026-06-02. <strong>Branch:</strong> <code>v2-redesign</code>. <strong>Product commit:</strong> <code>2e6fa66 [verified] continue child health v6 redesign</code>. <strong>Closeout artifact:</strong> committed in the current report commit on this branch.</p>
+<p><strong>Percent complete:</strong> <span class="warn">92%</span> overall. Build/remediation issues are implemented and verified; independent Opus/review gates remain intentionally open, and this is not a clinical validation or project-Done declaration.</p>
+
+<h2>What was built</h2>
+<ul>
+  <li><strong>ALF-312 R1:</strong> replaced static research stub with explicit non-PHI public-source fetch path, multi-source citations, request timeout, local cache write, and offline fallback to last cache.</li>
+  <li><strong>ALF-313 R2:</strong> frontend API calls now use <code>AbortController</code> timeout and render a friendly <code>API fallback: API down...</code> state instead of hanging; dev co-run smoke passed.</li>
+  <li><strong>ALF-314 R3:</strong> extended committed WHO male LMS anchors to 0–24 months for weight/length/head while preserving independent non-circular percentile fixtures/tests.</li>
+  <li><strong>ALF-315 R4:</strong> What-to-watch red flags now come from discharge parser rules (<code>load_thomas_rules</code>) instead of hardcoded watch items.</li>
+  <li><strong>ALF-316 V6.1:</strong> added body-centered infant hero with keyboard/clickable regions, gentle tint, urgency-only pulse CSS, and reduced-motion guardrails.</li>
+  <li><strong>ALF-317 V6.2:</strong> added right rail with 12 real metrics, Care Team, and Medications; missing values render as <code>not yet recorded</code> and are not fabricated.</li>
+  <li><strong>ALF-319 V6.3:</strong> added concern map detail panel for brain/CSF parechovirus, blood/liver jaundice/DAT, ear, and neck/head preference, each with source labels.</li>
+  <li><strong>ALF-320 V6.4:</strong> generated and committed offline organ/region illustration set with provenance and SHA checks.</li>
+  <li><strong>ALF-318 V6.5:</strong> generated and committed distinct per-page watercolor five-bunny family scenes for Today, Growth, Health, Timeline, and Doctor Prep; scrim remains low at <code>.28/.46</code> and decorative art is aria-hidden.</li>
+  <li><strong>ALF-284/285 carry-over:</strong> kept bilirubin independent table tests and real extractor precision tests in the verified suite.</li>
+</ul>
+
+<h2>Generated asset evidence</h2>
+<ul>
+  <li>New manifest: <code>docs/assets/v6-generated-art-provenance.json</code>.</li>
+  <li>Provider/model: <code>openai-codex / gpt-image-2-medium</code>.</li>
+  <li>Committed assets: 5 family scenes + 5 organ/region icons under <code>apps/web/src/assets/</code>.</li>
+  <li>Vision reviewed in-session: family scenes show five-bunny family and page signs; organ icons are friendly/non-scary/no logo or watermark.</li>
+  <li>Metadata/privacy byte scan passed for EXIF/GPS/MRN strings.</li>
+</ul>
+
+<h2>Verification</h2>
+<div class="grid">
+  <div class="card"><h3 class="pass">make check — PASS</h3><p>ruff, mypy, eslint, TypeScript, 19 Vitest tests, and token/a11y checks passed.</p></div>
+  <div class="card"><h3 class="pass">NODE_ENV=development make ci — PASS</h3><p>Includes make check, 25 backend pytest tests, and Vite production build.</p></div>
+  <div class="card"><h3 class="pass">NODE_ENV=development make smoke-dev — PASS</h3><p>FastAPI 8008 + Vite 5173 reachable and dev JSX runtime live.</p></div>
+  <div class="card"><h3 class="pass">Fresh clone smoke — PASS</h3><p>Local clone of branch ran <code>make ci</code>; dist contained root shell, JS bundle, and generated family assets.</p></div>
+</div>
+
+<h2>Bugs fixed during run</h2>
+<ul>
+  <li>Initial fresh-clone smoke failed before commit because uncommitted generated assets were absent; product changes were committed, then fresh-clone verification passed.</li>
+  <li>Frontend test expectation mismatch for API-down copy was corrected while preserving old <code>API fallback:</code> wording needed by existing tests.</li>
+  <li>Ruff import issues in the new research/test code were fixed before final check.</li>
+</ul>
+
+<h2>Linear status</h2>
+<ul>
+  <li>Marked implementation/carry-over issues Done: ALF-312, ALF-313, ALF-314, ALF-315, ALF-316, ALF-317, ALF-318, ALF-319, ALF-320, ALF-284, ALF-285.</li>
+  <li>Marked broad continuation ALF-321 Done with evidence comment; ALF-328 reconciled as duplicate with no new duplicate issues created.</li>
+  <li class="open">Review gates ALF-291, ALF-327, and ALF-334 were left open/backlog and re-pointed to commit/report/test evidence for independent review.</li>
+  <li class="open">Project was not marked Done.</li>
+</ul>
+
+<h2>Residual risks / caveats</h2>
+<ul>
+  <li>Clinical content remains a local-first dashboard aid, not a medical device or care decision authority.</li>
+  <li>Live research network path is implemented/tested with injectable fetcher and safe public-source allowlist, but the normal endpoint still defaults to cached/offline unless refresh is explicitly requested.</li>
+  <li>V6 hero body is a CSS watercolor-like infant silhouette plus generated organ illustrations; independent visual/clinical review should judge whether this meets John’s exact taste/spec before project Done.</li>
+  <li>Some source labels for ear/neck remain “Doctor Prep open question” because the repo evidence treats those as questions to confirm, not confirmed measurements.</li>
+</ul>
+
+<h2>Next actions</h2>
+<ol>
+  <li>Independent Opus/reviewer should review commit <code>2e6fa66</code> against ALF-291/ALF-327/ALF-334.</li>
+  <li>If approved, decide whether to merge/publish the <code>v2-redesign</code> branch.</li>
+  <li>If visual fidelity is insufficient, create a narrow follow-up art/layout polish issue rather than reopening clinical foundations.</li>
+</ol>
+</main></body></html>
