@@ -1,8 +1,33 @@
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { BunnyBackdrop, GrowthPage, TodayPage } from './pages';
 import { contrastRatio } from './tokens';
+
+type ArtManifest = { provider: string; model: string; subject_name: string; assets: { season: string; file: string; format: string; bytes: number; sha256: string; prompt: string; vision_review: { name_exact: boolean; newborn_appropriate: boolean } }[] };
+
+function repoPath(...segments: string[]) {
+  let current = process.cwd();
+  for (let depth = 0; depth < 8; depth += 1) {
+    const candidate = join(current, ...segments);
+    if (existsSync(candidate)) return candidate;
+    const parent = dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  throw new Error(`Could not locate ${segments.join('/')}`);
+}
+
+function loadArtProvenance() {
+  return JSON.parse(readFileSync(repoPath('docs/assets/thomas-bunny-art-provenance.json'), 'utf8')) as ArtManifest;
+}
+
+function readAsset(file: string) {
+  return readFileSync(repoPath('apps/web/src/assets', file));
+}
 
 beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn((url: string) => {
@@ -47,6 +72,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  Reflect.deleteProperty(document, 'startViewTransition');
   cleanup();
 });
 
@@ -63,8 +89,78 @@ describe('v2 redesign contract', () => {
 
   it('uses decorative bunny art behind scrim with AA-safe surfaces', () => {
     render(<BunnyBackdrop season="spring" />);
-    expect(screen.getByTestId('bunny-backdrop')).toHaveAttribute('aria-hidden', 'true');
+    const backdrop = screen.getByTestId('bunny-backdrop');
+    expect(backdrop).toHaveAttribute('aria-hidden', 'true');
+    expect(backdrop).toHaveAttribute('data-season', 'spring');
+    expect(backdrop.getAttribute('style')).toContain('thomas-bunny-spring.jpg');
     expect(contrastRatio('#17324d', '#f8fbff')).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('commits generated GPT Image provenance for all Thomas seasonal backgrounds', () => {
+    const artProvenance = loadArtProvenance();
+    expect(artProvenance.provider).toBe('openai-codex');
+    expect(artProvenance.model).toBe('gpt-image-2-medium');
+    expect(artProvenance.subject_name).toBe('Thomas');
+    expect(artProvenance.assets).toHaveLength(4);
+    for (const season of ['spring', 'summer', 'autumn', 'winter']) {
+      const asset = artProvenance.assets.find((item) => item.season === season);
+      expect(asset?.file).toBe(`thomas-bunny-${season}.jpg`);
+      expect(asset?.format).toBe('jpeg');
+      expect(asset?.bytes).toBe(readAsset(asset?.file ?? '').byteLength);
+      expect(asset?.sha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(asset?.prompt).toContain('Thomas');
+      expect(createHash('sha256').update(readAsset(asset?.file ?? '')).digest('hex')).toBe(asset?.sha256);
+      expect(asset?.vision_review.name_exact).toBe(true);
+      expect(asset?.vision_review.newborn_appropriate).toBe(true);
+    }
+  });
+
+  it('uses client-side route transitions between dashboard pages', async () => {
+    window.history.pushState({}, '', '/today');
+    const startViewTransition = vi.fn((callback: () => void) => {
+      callback();
+      return { finished: Promise.resolve() };
+    });
+    Object.defineProperty(document, 'startViewTransition', { configurable: true, value: startViewTransition });
+    render(<App />);
+    fireEvent.click(screen.getByRole('link', { name: 'Growth' }));
+    expect(window.location.pathname).toBe('/growth');
+    expect(screen.getByRole('heading', { name: 'Growth' })).toBeInTheDocument();
+    expect(await screen.findByText(/tracking along the ~59th percentile/i)).toBeInTheDocument();
+    expect(document.querySelector('[data-route="/growth"]')).toHaveClass('route-transition');
+    expect(startViewTransition).toHaveBeenCalledOnce();
+  });
+
+  it('skips document view transitions when reduced motion is requested', async () => {
+    window.history.pushState({}, '', '/today');
+    const startViewTransition = vi.fn((callback: () => void) => {
+      callback();
+      return { finished: Promise.resolve() };
+    });
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn()
+    })));
+    Object.defineProperty(document, 'startViewTransition', { configurable: true, value: startViewTransition });
+    render(<App />);
+    fireEvent.click(screen.getByRole('link', { name: 'Growth' }));
+    expect(window.location.pathname).toBe('/growth');
+    expect(await screen.findByText(/tracking along the ~59th percentile/i)).toBeInTheDocument();
+    expect(startViewTransition).not.toHaveBeenCalled();
+  });
+
+  it('supports hash-target navigation without document reload', async () => {
+    window.history.pushState({}, '', '/today');
+    render(<App />);
+    fireEvent.click(screen.getByRole('link', { name: /add measurement/i }));
+    expect(window.location.pathname).toBe('/growth');
+    expect(window.location.hash).toBe('#add-measurement');
+    expect(await screen.findByText(/tracking along the ~59th percentile/i)).toBeInTheDocument();
   });
 
   it('today shows high-confidence actionable watch, separated lower-confidence signals, and one global boundary note', async () => {

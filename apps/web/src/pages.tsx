@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Card, ChartFrame, Recommendation, StatusBadge } from './components';
 import { conditions, doctorQuestions, routineRecommendation } from './data';
 import type { Confidence, RecommendationPayload, Urgency } from './types';
-import springBunny from './assets/bunny-spring.svg?url';
-import summerBunny from './assets/bunny-summer.svg?url';
-import autumnBunny from './assets/bunny-autumn.svg?url';
-import winterBunny from './assets/bunny-winter.svg?url';
+import springBunny from './assets/thomas-bunny-spring.jpg?url';
+import summerBunny from './assets/thomas-bunny-summer.jpg?url';
+import autumnBunny from './assets/thomas-bunny-autumn.jpg?url';
+import winterBunny from './assets/thomas-bunny-winter.jpg?url';
 
 type TodayApiPayload = { child: string; status: 'routine' | 'alarm'; status_strip: string; primary_recommendation: RecommendationPayload; reassurance_first: { label: string; source: string }[]; watching: string[]; red_flags: { key: string; label: string; source?: { source_id?: string; page?: number } | string }[] };
 type Source = { title: string; url: string; date: string };
@@ -15,8 +15,9 @@ type GrowthPayload = { percentiles: Record<string, { percentile: number; label: 
 type ResearchPayload = { mode: string; updates: { title: string; summary: string; confidence: Confidence; sources: Source[] }[] };
 
 const bunnyAssets = { spring: springBunny, summer: summerBunny, autumn: autumnBunny, winter: winterBunny } as const;
+type BunnySeason = keyof typeof bunnyAssets;
 
-function seasonNow(): keyof typeof bunnyAssets {
+function seasonNow(): BunnySeason {
   const month = new Date().getMonth();
   if (month < 2 || month === 11) return 'winter';
   if (month < 5) return 'spring';
@@ -24,8 +25,8 @@ function seasonNow(): keyof typeof bunnyAssets {
   return 'autumn';
 }
 
-export function BunnyBackdrop({ season = seasonNow() }: { season?: keyof typeof bunnyAssets }) {
-  return <div className="bunny-backdrop" data-testid="bunny-backdrop" aria-hidden="true" style={{ backgroundImage: `linear-gradient(rgba(248,251,255,.82), rgba(248,251,255,.92)), url(${bunnyAssets[season]})` }} />;
+export function BunnyBackdrop({ season = seasonNow() }: { season?: BunnySeason }) {
+  return <div className="bunny-backdrop generated-bunny-backdrop" data-testid="bunny-backdrop" data-season={season} aria-hidden="true" style={{ backgroundImage: `linear-gradient(rgba(248,251,255,.80), rgba(248,251,255,.92)), url(${bunnyAssets[season]})` }} />;
 }
 
 function WatchList({ payload }: { payload: WatchPayload | null }) {

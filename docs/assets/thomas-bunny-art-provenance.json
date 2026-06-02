@@ -1,0 +1,84 @@
+{
+  "version": "2026-06-02-gpt-image-2-medium-thomas-seasonal-bunny-art",
+  "generated_at_utc": "2026-06-02T05:46:15Z",
+  "provider": "openai-codex",
+  "model": "gpt-image-2-medium",
+  "api_model": "gpt-image-2",
+  "aspect_ratio": "landscape",
+  "size": "1536x1024",
+  "quality": "medium",
+  "subject_name": "Thomas",
+  "privacy_note": "Generated images include Thomas's first name only and no clinical facts, diagnoses, dates, full name, or other PHI.",
+  "style_note": "Blue-tinted, classic early-20th-century English children's storybook watercolor background art with gentle nursery-safe bunny scenes and generous negative space for dashboard cards.",
+  "vision_review_summary": "All four generated assets were visually reviewed after generation: each is calm and newborn-appropriate, contains the exact name Thomas once, has no logos, no scary imagery, no medical devices, and no extra text.",
+  "assets": [
+    {
+      "season": "spring",
+      "file": "thomas-bunny-spring.jpg",
+      "source_cache_file": "openai_codex_gpt-image-2-medium_20260601_224238_9b0fe300.png",
+      "sha256": "6e3026856f544e9b002b440cb9a224188b509ad62d67a4309b61fa4297ea4447",
+      "bytes": 321067,
+      "prompt": "Create a fresh production background illustration for a newborn boy's local health dashboard. Season: SPRING. Classic early-20th-century English children's storybook watercolor look, delicate ink outlines, soft paper texture, gentle Beatrix-Potter-era naturalist nursery mood, NOT a modern cartoon. Blue-tinted palette: pale sky blue, cornflower, powder blue, ivory, tiny spring greens. Scene: a gentle baby bunny in a spring meadow beside forget-me-nots and a small wicker basket with a folded blue blanket; calm, reassuring, wholesome, suitable for a baby health dashboard. Include the exact name \u201cThomas\u201d clearly hand-lettered once on a small blue ribbon or wooden name plaque integrated into the scene. Leave generous quiet negative space in the center/right for dashboard cards; no medical devices, no scary imagery, no other text, no logos.",
+      "vision_review": {
+        "name_exact": true,
+        "newborn_appropriate": true,
+        "no_extra_text": true,
+        "no_medical_or_scary_elements": true,
+        "negative_space": "Open cream and pale-blue watercolor field across the center/right for dashboard cards."
+      },
+      "format": "jpeg",
+      "optimization": "Converted from generated PNG to optimized progressive JPEG quality 85 with Pillow; metadata stripped; 1536x1024 retained; browser downloads only the active seasonal background."
+    },
+    {
+      "season": "summer",
+      "file": "thomas-bunny-summer.jpg",
+      "source_cache_file": "openai_codex_gpt-image-2-medium_20260601_224333_ce365833.png",
+      "sha256": "717ebfaa1d46d9f2a84c4081e96d359e127f6648c7dcf8bdc312c5463f5da658",
+      "bytes": 351293,
+      "prompt": "Create a fresh production background illustration for a newborn boy's local health dashboard. Season: SUMMER. Classic early-20th-century English children's storybook watercolor look, delicate ink outlines, soft paper texture, gentle Beatrix-Potter-era naturalist nursery mood, NOT a modern cartoon. Blue-tinted palette: powder blue, summer sky, hydrangea blue, ivory, tiny warm greens. Scene: a gentle baby bunny in a quiet summer cottage garden with blue hydrangeas, a watering can, and soft dappled light; calm, reassuring, wholesome, suitable for a baby health dashboard. Include the exact name \u201cThomas\u201d clearly hand-lettered once on a small blue garden sign or ribbon integrated into the scene. Leave generous quiet negative space in the center/right for dashboard cards; no medical devices, no scary imagery, no other text, no logos.",
+      "vision_review": {
+        "name_exact": true,
+        "newborn_appropriate": true,
+        "no_extra_text": true,
+        "no_medical_or_scary_elements": true,
+        "negative_space": "Open sky and cream watercolor field across the center/right for dashboard cards."
+      },
+      "format": "jpeg",
+      "optimization": "Converted from generated PNG to optimized progressive JPEG quality 85 with Pillow; metadata stripped; 1536x1024 retained; browser downloads only the active seasonal background."
+    },
+    {
+      "season": "autumn",
+      "file": "thomas-bunny-autumn.jpg",
+      "source_cache_file": "openai_codex_gpt-image-2-medium_20260601_224424_84483e8f.png",
+      "sha256": "46c5518033370344fbc2a0b6ce4ab73e74e26574ba7d6e8f7365d3141b388fa0",
+      "bytes": 317799,
+      "prompt": "Create a fresh production background illustration for a newborn boy's local health dashboard. Season: AUTUMN. Classic early-20th-century English children's storybook watercolor look, delicate ink outlines, soft paper texture, gentle Beatrix-Potter-era naturalist nursery mood, NOT a modern cartoon. Blue-tinted palette: misty blue, slate blue, ivory, muted russet accents, soft sage. Scene: a gentle baby bunny near fallen autumn leaves, acorns, and a blue knitted blanket on a woodland path; calm, reassuring, wholesome, suitable for a baby health dashboard. Include the exact name \u201cThomas\u201d clearly hand-lettered once on a small blue bookplate or wooden name plaque integrated into the scene. Leave generous quiet negative space in the center/right for dashboard cards; no medical devices, no scary imagery, no other text, no logos.",
+      "vision_review": {
+        "name_exact": true,
+        "newborn_appropriate": true,
+        "no_extra_text": true,
+        "no_medical_or_scary_elements": true,
+        "negative_space": "Open cream and misty-blue watercolor field across the center/right for dashboard cards."
+      },
+      "format": "jpeg",
+      "optimization": "Converted from generated PNG to optimized progressive JPEG quality 85 with Pillow; metadata stripped; 1536x1024 retained; browser downloads only the active seasonal background."
+    },
+    {
+      "season": "winter",
+      "file": "thomas-bunny-winter.jpg",
+      "source_cache_file": "openai_codex_gpt-image-2-medium_20260601_224520_5a94a0f9.png",
+      "sha256": "cb1e9e3d5211b9341864dc175cc72aa196d7660cf3e453df307b2d61844f906f",
+      "bytes": 314920,
+      "prompt": "Create a fresh production background illustration for a newborn boy's local health dashboard. Season: WINTER. Classic early-20th-century English children's storybook watercolor look, delicate ink outlines, soft paper texture, gentle Beatrix-Potter-era naturalist nursery mood, NOT a modern cartoon. Blue-tinted palette: icy blue, powder blue, moonlit navy accents, ivory, soft silver. Scene: a gentle baby bunny in a cozy winter nursery window scene with snow outside, a blue quilt, and small pine sprigs; calm, reassuring, wholesome, suitable for a baby health dashboard. Include the exact name \u201cThomas\u201d clearly hand-lettered once on a small blue nursery banner or name block integrated into the scene. Leave generous quiet negative space in the center/right for dashboard cards; no medical devices, no scary imagery, no other text, no logos.",
+      "vision_review": {
+        "name_exact": true,
+        "newborn_appropriate": true,
+        "no_extra_text": true,
+        "no_medical_or_scary_elements": true,
+        "negative_space": "Open cream and pale-blue watercolor field across the center/right for dashboard cards."
+      },
+      "format": "jpeg",
+      "optimization": "Converted from generated PNG to optimized progressive JPEG quality 85 with Pillow; metadata stripped; 1536x1024 retained; browser downloads only the active seasonal background."
+    }
+  ]
+}
