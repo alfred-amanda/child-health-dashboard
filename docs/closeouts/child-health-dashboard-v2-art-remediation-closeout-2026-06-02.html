@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Child Health Dashboard v2 — Art + Transition Remediation Closeout</title>
+  <style>
+    :root { color-scheme: light; --ink:#17324d; --muted:#52677c; --line:#b9d2e8; --ok:#0a7f45; --warn:#9a5b00; --bg:#f4f9ff; --card:#ffffff; --blue:#245c86; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:linear-gradient(160deg,#eaf5ff,#fffaf2); color:var(--ink); line-height:1.55; }
+    main { max-width:1100px; margin:0 auto; padding:32px 20px 56px; }
+    h1 { font-size:2rem; margin:0 0 8px; }
+    h2 { margin-top:0; }
+    code { background:#eef5ff; border:1px solid #d5e6f6; border-radius:6px; padding:1px 5px; }
+    .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+    .card { background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 12px 28px rgba(36,92,134,.10); }
+    .status { display:inline-block; border-radius:999px; padding:4px 10px; font-weight:800; font-size:.85rem; }
+    .pass { background:#e7f8ee; color:var(--ok); border:1px solid #9dd9b6; }
+    .warn { background:#fff5df; color:var(--warn); border:1px solid #e3c26b; }
+    table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; }
+    th,td { border:1px solid #d5e6f6; padding:8px 10px; text-align:left; vertical-align:top; }
+    th { background:#eaf5ff; }
+    .small { color:var(--muted); font-size:.92rem; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="small">Generated 2026-06-02T06:11:16Z / 2026-06-01 23:11:16 PDT</p>
+  <h1>Child Health Dashboard v2 — Art + Transition Remediation Closeout</h1>
+  <p><span class="status pass">100% complete for this remediation</span> <span class="status warn">Opus 4.8 gate remains open</span></p>
+
+  <section class="grid">
+    <div class="card"><h2>Outcome</h2><p>Remediated the prior false completion on V0.3/ALF-294: the placeholder SVG bunnies were removed and replaced with freshly generated seasonal GPT Image art for <strong>Thomas</strong>. The dashboard now has smoother client-side page transitions with reduced-motion safeguards.</p></div>
+    <div class="card"><h2>Commit</h2><p><code>ab5f70f</code> on <code>v2-redesign</code><br><code>[verified] remediate generated Thomas dashboard art</code></p><p class="small">Working tree clean at closeout.</p></div>
+    <div class="card"><h2>Scope</h2><ul><li>4 seasonal generated art assets: spring, summer, autumn, winter.</li><li>Provenance manifest committed under <code>docs/assets/</code>, not imported into the browser bundle.</li><li>React route state + View Transition API support.</li><li>CSS motion polish with <code>prefers-reduced-motion</code> protection.</li><li>Regression tests for assets, SHA/byte integrity, transitions, reduced motion, and hash navigation.</li></ul></div>
+  </section>
+
+  <section class="card">
+    <h2>Generated Asset Receipts</h2>
+    <p>Image generation was performed through Hermes <code>image_generate</code> using <code>openai-codex</code> / <code>gpt-image-2-medium</code>. Each generated PNG was visually reviewed, converted to optimized progressive JPEG quality 85, and metadata-stripped before commit.</p>
+    <table>
+      <thead><tr><th>Season</th><th>Committed file</th><th>Bytes</th><th>SHA-256 prefix</th><th>Vision review</th></tr></thead>
+      <tbody>
+        <tr><td>Spring</td><td><code>apps/web/src/assets/thomas-bunny-spring.jpg</code></td><td>321,067</td><td><code>6e3026856f54</code></td><td>Name exact; newborn-appropriate.</td></tr>
+        <tr><td>Summer</td><td><code>apps/web/src/assets/thomas-bunny-summer.jpg</code></td><td>351,293</td><td><code>717ebfaa1d46</code></td><td>Name exact; newborn-appropriate.</td></tr>
+        <tr><td>Autumn</td><td><code>apps/web/src/assets/thomas-bunny-autumn.jpg</code></td><td>317,799</td><td><code>46c551803337</code></td><td>Name exact; newborn-appropriate.</td></tr>
+        <tr><td>Winter</td><td><code>apps/web/src/assets/thomas-bunny-winter.jpg</code></td><td>314,920</td><td><code>cb1e9e3d5211</code></td><td>Name exact; newborn-appropriate.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Verification</h2>
+    <ul>
+      <li><span class="status pass">PASS</span> Static scan of added lines: no hardcoded secrets, shell injection, eval/exec, pickle, or SQL formatting findings.</li>
+      <li><span class="status pass">PASS</span> Independent review session <code>20260601_230909_7ee593</code>: no blocking security/privacy/logic/accessibility regressions.</li>
+      <li><span class="status pass">PASS</span> <code>make check</code>: ruff, mypy, eslint, tsc, vitest, and a11y checks all green; 3 frontend files / 17 tests passed.</li>
+      <li><span class="status pass">PASS</span> <code>NODE_ENV=development make ci</code>: backend pytest 24/24 passed and Vite production build succeeded.</li>
+      <li><span class="status pass">PASS</span> Build artifact sizes: active seasonal JPEGs are ~315–351 KB each; JS gzip 123.76 KB; CSS gzip 2.30 KB.</li>
+      <li><span class="status pass">PASS</span> <code>NODE_ENV=development make smoke-dev</code>: FastAPI 8008 + Vite 5173 reachable and dev JSX runtime live.</li>
+      <li><span class="status pass">PASS</span> Fresh local clone smoke at <code>/tmp/child-health-dashboard-fresh-ab5f70f</code>: cloned <code>ab5f70f</code>, installed dependencies, and <code>NODE_ENV=development make smoke-dev</code> passed.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Caveats / Residual Risk</h2>
+    <ul>
+      <li>First-name-only art in a health-dashboard context is now intentional product behavior requested by John. No full name, clinical detail, dates, GPS, prompt metadata, or PHI-bearing image metadata was found in committed JPEG byte scans.</li>
+      <li>ALF-291 remains open as the independent Opus 4.8 v2 review gate; do not close the project solely from this remediation.</li>
+      <li>The separate V3.2 phrase-review follow-up still exists: prior search found remaining “ask pediatrician/doctor” style strings in <code>apps/</code> that need targeted review to confirm they are legitimate red-flag contexts.</li>
+      <li>Further polish if desired: popstate/focus-management tests for route transitions and responsive image variants for very small screens.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Linear / Closeout Actions</h2>
+    <ul>
+      <li>Post remediation evidence to ALF-294.</li>
+      <li>Post re-review checkpoint to ALF-291 while leaving the gate open.</li>
+      <li>Send one Telegram completion ping after this final aggregate HTML is opened.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
