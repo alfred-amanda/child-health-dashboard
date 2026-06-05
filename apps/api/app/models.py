@@ -248,6 +248,61 @@ class WhatChangedEntry(SQLModel, table=True):
     snippet: str
 
 
+class ParechovirusSymptom(SQLModel, table=True):
+    """A single symptom observation logged by a parent or caregiver.
+
+    ``symptom_key`` references the catalog in ``app.parechovirus``. The
+    catalog is the source of truth for unit/measurement/severity-range;
+    storing a free-form severity here lets the parent record how bad the
+    episode felt in their own words.
+    """
+
+    id: str = Field(default_factory=new_id, primary_key=True)
+    child_id: str = Field(index=True)
+    symptom_key: str = Field(index=True)
+    severity: int = Field(ge=1, le=5)
+    measurement_value: float | None = None
+    duration_minutes: int | None = None
+    observed_at: datetime
+    notes: str | None = None
+    actor: str
+    source: str = 'parent_log'
+    created_at: datetime = Field(default_factory=now_utc)
+
+
+class ParechovirusTriageIssue(SQLModel, table=True):
+    """A triage issue raised by the rule engine (or by a parent directly).
+
+    The issue is the *active* unit of work: it has a status that moves
+    from open -> acknowledged -> resolved. The corresponding
+    ``rule_key`` ties it back to ``app.parechovirus.TRIAGE_RULES`` so the
+    evidence and source provenance stay source-linked, matching the rest
+    of the dashboard's discipline.
+    """
+
+    id: str = Field(default_factory=new_id, primary_key=True)
+    child_id: str = Field(index=True)
+    rule_key: str = Field(index=True)
+    label: str
+    urgency: str = Field(index=True)
+    action: str
+    evidence: str
+    source_id: str
+    source_title: str
+    page: int | None = None
+    snippet: str
+    confidence: float = Field(ge=0, le=1)
+    status: str = Field(default='open', index=True)
+    opened_at: datetime = Field(default_factory=now_utc)
+    acknowledged_at: datetime | None = None
+    acknowledged_by: str | None = None
+    resolved_at: datetime | None = None
+    resolved_by: str | None = None
+    resolution_notes: str | None = None
+    related_symptom_ids: str = ''
+    """Comma-separated list of ParechovirusSymptom ids that triggered this issue."""
+
+
 ALL_MODELS: tuple[type[SQLModel], ...] = (
     Child,
     SourceDocument,
@@ -263,4 +318,6 @@ ALL_MODELS: tuple[type[SQLModel], ...] = (
     DevelopmentMilestone,
     Question,
     WhatChangedEntry,
+    ParechovirusSymptom,
+    ParechovirusTriageIssue,
 )
