@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Parechovirus Tracker - Closeout 2026-06-04</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 2em auto; line-height: 1.55; color: #1a2b3a; }
+      h1, h2, h3 { color: #12304a; }
+      code { background: #f0f6fb; padding: 2px 6px; border-radius: 4px; font-size: 0.92em; }
+      .step { border-left: 4px solid #245c86; padding: 8px 14px; margin: 14px 0; background: #f8fbff; }
+      .step h3 { margin: 0 0 6px; }
+      .meta { color: #4a6076; font-size: 0.92em; }
+      .screenshot { max-width: 100%; border: 1px solid #b9d2e8; border-radius: 12px; margin: 12px 0; }
+      table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+      th, td { border: 1px solid #d6e2ee; padding: 6px 10px; text-align: left; font-size: 0.94em; }
+      th { background: #eef6ff; }
+      .pass { color: #1e7c2c; font-weight: 800; }
+    </style>
+  </head>
+  <body>
+    <h1>Parechovirus Symptom + Triage Tracker</h1>
+    <p class="meta">Closeout - 2026-06-04 - v2-redesign branch - github.com/alfred-amanda/child-health-dashboard</p>
+
+    <h2>What was built</h2>
+    <p>
+      A new <code>/parechovirus</code> page on the existing Child Health
+      Dashboard that lets a parent log symptoms as they happen and runs a
+      source-linked triage engine to surface issues at the right urgency
+      (911 / urgent / today / soon / watch). Built in seven commits on
+      <code>v2-redesign</code>.
+    </p>
+
+    <h2>Commits on v2-redesign (newest first)</h2>
+    <table>
+      <tr><th>SHA</th><th>Step</th><th>What it adds</th></tr>
+      <tr><td>760de7a</td><td>Frontend page</td><td>/parechovirus route, log form, triage queue, history, catalog reference, status strip, CSS</td></tr>
+      <tr><td>97d4fe5</td><td>API endpoints</td><td>7 REST endpoints under /api/parechovirus with validation + auto-triage wiring</td></tr>
+      <tr><td>2cc81e1</td><td>Data models</td><td>ParechovirusSymptom + ParechovirusTriageIssue SQLModel tables</td></tr>
+      <tr><td>5ec54b4</td><td>Rule engine</td><td>12-symptom catalog + 10 triage rules (pure logic, 16 unit tests)</td></tr>
+      <tr><td>2969af9</td><td>Baseline</td><td>Pre-parechovirus-tracker snapshot (uncommitted from prior sessions)</td></tr>
+      <tr><td>0a5c3b3 (pre-existing)</td><td>Latest prior commit</td><td>Refine dashboard card translucency</td></tr>
+    </table>
+
+    <h2>API surface</h2>
+    <table>
+      <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
+      <tr><td>GET</td><td>/api/parechovirus/catalog</td><td>Symptom + rule catalog (static)</td></tr>
+      <tr><td>POST</td><td>/api/parechovirus/symptoms</td><td>Log a symptom; auto-runs triage</td></tr>
+      <tr><td>GET</td><td>/api/parechovirus/symptoms?days=N</td><td>List recent symptom log entries</td></tr>
+      <tr><td>GET</td><td>/api/parechovirus/triage?status=...</td><td>List triage issues (default: open)</td></tr>
+      <tr><td>POST</td><td>/api/parechovirus/triage</td><td>Open a manual issue (override)</td></tr>
+      <tr><td>PATCH</td><td>/api/parechovirus/triage/{id}</td><td>Acknowledge or resolve an issue</td></tr>
+      <tr><td>GET</td><td>/api/parechovirus/today</td><td>Page payload (symptoms + open issues + highest urgency)</td></tr>
+    </table>
+
+    <h2>Symptom catalog (12)</h2>
+    <p>
+      fever, hypothermia, lethargy, irritability, seizure,
+      bulging_fontanelle, poor_feeding, apnea, rash, diarrhea, vomiting,
+      decreased_wet_diapers. Each has category, severity range,
+      measurement type, parent prompt, source ID, page, snippet, confidence.
+    </p>
+
+    <h2>Triage rules (10)</h2>
+    <table>
+      <tr><th>Rule</th><th>Urgency</th><th>Trigger</th></tr>
+      <tr><td>parecho_seizure</td><td>911</td><td>any seizure log</td></tr>
+      <tr><td>parecho_apnea</td><td>911</td><td>apnea severity >= 4</td></tr>
+      <tr><td>parecho_bulging_fontanelle</td><td>911</td><td>bulging fontanelle log</td></tr>
+      <tr><td>parecho_fever_with_lethargy</td><td>911</td><td>fever >= 38.0 C + lethargy severity 3+</td></tr>
+      <tr><td>parecho_fever_neonate</td><td>today</td><td>fever >= 38.0 C in infant</td></tr>
+      <tr><td>parecho_hypothermia</td><td>today</td><td>measured temp < 36.5 C</td></tr>
+      <tr><td>parecho_few_wet_diapers</td><td>urgent</td><td>wet diapers / 24h < 4</td></tr>
+      <tr><td>parecho_poor_feeding_plus_lethargy</td><td>urgent</td><td>poor feeding + lethargy severity 2+</td></tr>
+      <tr><td>parecho_persistent_irritability</td><td>soon</td><td>irritability severity 2+ for >= 60 min</td></tr>
+      <tr><td>parecho_rash_with_fever</td><td>soon</td><td>rash + fever</td></tr>
+    </table>
+
+    <h2>Test coverage</h2>
+    <ul>
+      <li class="pass">56 backend tests pass (16 rule engine + 3 models + 12 API + 25 pre-existing)</li>
+      <li class="pass">22 frontend tests pass (3 page tests + 19 pre-existing)</li>
+      <li class="pass">TypeScript: clean (no errors)</li>
+      <li class="pass">Vite production build: green (221 KB JS / 9 KB CSS)</li>
+    </ul>
+
+    <h2>End-to-end smoke verified</h2>
+    <ol>
+      <li>Started uvicorn on :8008 and Vite on :5173 with the new /api proxy</li>
+      <li>Posted fever 38.6 C -> backend auto-opened a "today" issue (parecho_fever_neonate)</li>
+      <li>Posted lethargy severity 3 -> backend escalated to a new "911" issue (parecho_fever_with_lethargy)</li>
+      <li>GET /api/parechovirus/today returned highest_urgency=911 with both issues</li>
+      <li>PATCH /api/parechovirus/triage/{id} with status=acknowledged moved the 911 to acknowledged</li>
+      <li>PATCH with status=resolved and resolution_notes closed both issues</li>
+      <li>GET /api/parechovirus/today returned highest_urgency=routine, open_issue_count=0</li>
+    </ol>
+
+    <h2>Screenshots</h2>
+    <h3>Alarm state (911 active)</h3>
+    <p class="meta">reports/screenshots/dashboard-parechovirus-20260604.png</p>
+    <p class="meta">Yellow status strip, two open issues (911 red + today yellow), full source provenance visible.</p>
+
+    <h3>Routine state (all resolved)</h3>
+    <p class="meta">reports/screenshots/dashboard-parechovirus-routine-20260604.png</p>
+    <p class="meta">Green status strip, empty triage queue, "Recently resolved" panel shows the closed issues with resolution notes.</p>
+
+    <h2>Safety</h2>
+    <ul>
+      <li>All data stays local (no external services enabled by default, matching the rest of the dashboard's discipline)</li>
+      <li>Red-flag thresholds and rule source snippets are stored with the issue itself, not just rendered in the UI</li>
+      <li>UI explicitly says "This is a tracking tool, not a diagnosis" in the footer</li>
+      <li>911 rules use the most conservative path - any seizure / apnea / bulging fontanelle / fever+lethargy combo escalates immediately</li>
+      <li>6h dedupe cooldown prevents spamming duplicate issues for the same rule when re-logging</li>
+    </ul>
+  </body>
+</html>
