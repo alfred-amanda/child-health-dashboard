@@ -2,7 +2,7 @@
 import { Component, useCallback, useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { ErrorInfo, MouseEvent, ReactElement, ReactNode } from 'react';
-import { HealthPage, GrowthPage, DoctorPrepPage, TimelinePage, TodayPage } from './pages';
+import { HealthPage, GrowthPage, DoctorPrepPage, TimelinePage, TodayPage, ParechovirusPage } from './pages';
 
 class DashboardErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state: { error: Error | null } = { error: null };
@@ -19,11 +19,12 @@ const routes: Record<string, { label: string; element: ReactElement }> = {
   '/today': { label: 'Today', element: <TodayPage /> },
   '/growth': { label: 'Growth', element: <GrowthPage /> },
   '/health': { label: 'Health', element: <HealthPage /> },
+  '/parechovirus': { label: 'Parechovirus', element: <ParechovirusPage /> },
   '/timeline': { label: 'Timeline', element: <TimelinePage /> },
   '/doctor-prep': { label: 'Doctor Prep', element: <DoctorPrepPage /> }
 };
 
-const primaryRoutes = ['/today', '/growth', '/health', '/timeline', '/doctor-prep'];
+const primaryRoutes = ['/today', '/growth', '/health', '/parechovirus', '/timeline', '/doctor-prep'];
 
 type RoutePath = keyof typeof routes;
 type TransitionCapableDocument = Document & { startViewTransition?: (callback: () => void) => unknown };
