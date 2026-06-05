@@ -16,6 +16,7 @@ from .doctor_prep import THOMAS_QUESTIONS
 from .growth import MeasurementInput, compute_growth_snapshot
 from .ingestion import ingest_file
 from .models import Condition, Encounter, LabResult, ParentObservation, Question, Task
+from .parechovirus_api import router as parechovirus_router
 from .predictions import forecast_gaps
 from .recommendations import RecommendationPayload, SourceRef
 from .red_flags import Observation, evaluate_observation, load_thomas_rules
@@ -24,6 +25,7 @@ from .seed import import_thomas_seed, load_profile
 from .watch import build_what_to_watch
 
 app = FastAPI(title='Child Health Dashboard API')
+app.include_router(parechovirus_router)
 app.add_middleware(CORSMiddleware, allow_origins=['http://localhost:5173'], allow_credentials=True, allow_methods=['*'], allow_headers=['*'])
 
 
