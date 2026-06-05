@@ -9,6 +9,7 @@ Term infant, DAT-positive ABO incompatibility/jaundice watch, recent parechoviru
 ## New data since last visit
 
 - Fever admission 2026-05-29 to 2026-05-31; parechovirus detected; CRP/procalcitonin low; cultures need final confirmation.
+- June 2 pediatric follow-up: clinically back to baseline, feeding/diapers reassuring, normal neurologic exam, no rash/jaundice, good interval weight gain.
 - Bilirubin values remain source-linked and interpreted against AAP-2022 with hemolytic risk factor.
 
 ## Open questions
@@ -34,7 +35,7 @@ Hep B deferred; needs catch-up plan. Source: structured profile + newborn AVS.
 
 ## Growth summary
 
-Birth weight 3.59 kg; later weights above birthweight but inpatient values vary. Use WHO 0–24 month standard and pediatrician trend.
+Birth weight 3.59 kg; June 2 weight 3.898 kg / 8 lb 9.5 oz at DOL 16 (+8.6% from birth; 47th percentile in AVS). Pediatric note documents good interval weight gain.
 
 ## Abnormal/watch labs
 

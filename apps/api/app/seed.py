@@ -32,6 +32,9 @@ def _upsert(session: Session, obj: Any) -> None:
     existing = session.get(type(obj), obj.id)
     if existing is None:
         session.add(obj)
+        return
+    for key, value in obj.model_dump().items():
+        setattr(existing, key, value)
 
 
 def load_profile(seed_root: Path = SEED_ROOT) -> dict[str, Any]:

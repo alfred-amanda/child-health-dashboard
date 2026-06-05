@@ -22,13 +22,13 @@ def generate_markdown(report_dir: Path) -> Path:
     body = '# Thomas Chen — Next Visit Doctor Prep\n\n'
     body += 'Medical boundary: this organizes records; Thomas’s pediatrician decides care.\n\n'
     body += '## Clinician summary\n\nTerm infant, DAT-positive ABO incompatibility/jaundice watch, recent parechovirus meningitis/neonatal fever admission, clinically improved at discharge.\n\n'
-    body += '## New data since last visit\n\n- Fever admission 2026-05-29 to 2026-05-31; parechovirus detected; CRP/procalcitonin low; cultures need final confirmation.\n- Bilirubin values remain source-linked and interpreted against AAP-2022 with hemolytic risk factor.\n\n'
+    body += '## New data since last visit\n\n- Fever admission 2026-05-29 to 2026-05-31; parechovirus detected; CRP/procalcitonin low; cultures need final confirmation.\n- June 2 pediatric follow-up: clinically back to baseline, feeding/diapers reassuring, normal neurologic exam, no rash/jaundice, good interval weight gain.\n- Bilirubin values remain source-linked and interpreted against AAP-2022 with hemolytic risk factor.\n\n'
     body += '## Open questions\n\n'
     for idx, question in enumerate(THOMAS_QUESTIONS, start=1):
         body += f'{idx}. {question}\n'
     body += '\n## Meds/allergies\n\nNo active allergies in AVS; no discharge medication changes. Source: SRC-003 p.1.\n\n'
     body += '## Vaccine status\n\nHep B deferred; needs catch-up plan. Source: structured profile + newborn AVS.\n\n'
-    body += '## Growth summary\n\nBirth weight 3.59 kg; later weights above birthweight but inpatient values vary. Use WHO 0–24 month standard and pediatrician trend.\n\n'
+    body += '## Growth summary\n\nBirth weight 3.59 kg; June 2 weight 3.898 kg / 8 lb 9.5 oz at DOL 16 (+8.6% from birth; 47th percentile in AVS). Pediatric note documents good interval weight gain.\n\n'
     body += '## Abnormal/watch labs\n\nBilirubin, CBC/anemia markers, culture status — all values require source disclosure in the app.\n'
     path = report_dir / 'thomas-next-visit.md'
     path.write_text(body)

@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 from sqlmodel import SQLModel, create_engine
 
+from app.config import SEED_ROOT
 from app.models import ExtractedFact, FactType, ReviewStatus
 from app.seed import import_thomas_seed
 
@@ -30,7 +31,8 @@ def test_model_accepts_reviewed_provenanced_fact() -> None:
 def test_thomas_seed_import_idempotent_and_counts_reconcile() -> None:
     first = import_thomas_seed()
     second = import_thomas_seed()
-    assert first['sources'] == second['sources'] == 35
+    expected_sources = sum(1 for _ in (SEED_ROOT / 'data' / 'source_manifest.csv').open()) - 1
+    assert first['sources'] == second['sources'] == expected_sources
     assert second['conditions'] >= 6
     assert second['tasks'] >= 4
     assert second['questions'] == 10
